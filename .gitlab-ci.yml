@@ -1,0 +1,99 @@
+image: alpine
+
+variables:
+  COMMIT: ${CI_COMMIT_SHA}
+  REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/companies-service
+  COMPANIES: companies
+  COMPANIES_DB: companies-db
+  SWAGGER: companies-swagger
+
+stages:
+  - tests
+  - registry
+  - cleanup
+  - deploy
+
+Testing:
+  stage: tests
+  only:
+    - devel
+  before_script:
+    - sudo git clean -ffdx
+  script:
+    - docker-compose -f docker-compose-dev.yml up -d --build
+    - docker-compose -f docker-compose-dev.yml run companies python manage.py recreate-db
+    - docker-compose -f docker-compose-dev.yml run companies flake8 project
+    - docker-compose -f docker-compose-dev.yml run companies python manage.py cov
+  after_script:
+    - docker-compose -f docker-compose-dev.yml down
+    - sudo git clean -ffdx
+
+Companies Service:
+  stage: registry
+  only:
+    - stage
+  before_script:
+    - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
+    - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
+    - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/companies-service.git"
+    - export COMPANIES_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
+  script:
+    - docker build $COMPANIES_REPO -t $COMPANIES:$COMMIT -f Dockerfile-stage
+    - docker tag $COMPANIES:$COMMIT $REGISTRY_REPO/$COMPANIES:$TAG
+    - docker push $REGISTRY_REPO/$COMPANIES:$TAG
+
+Companies DB:
+  stage: registry
+  only:
+    - stage
+  before_script:
+    - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
+    - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
+    - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/companies-service.git"
+    - export COMPANIES_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
+  script:
+    - docker build $COMPANIES_DB_REPO -t $COMPANIES_DB:$COMMIT -f Dockerfile
+    - docker tag $COMPANIES_DB:$COMMIT $REGISTRY_REPO/$COMPANIES_DB:$TAG
+    - docker push $REGISTRY_REPO/$COMPANIES_DB:$TAG
+
+Companies Swagger:
+  stage: registry
+  only:
+    - stage
+  before_script:
+    - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
+    - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
+    - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/companies-service.git"
+    - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
+  script:
+    - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
+    - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
+    - docker push $REGISTRY_REPO/$SWAGGER:$TAG
+
+Cleaning:
+  stage: cleanup
+  only:
+    - stage
+  script:
+    - docker image rm -f $(docker image ls -q)
+
+Stage:
+  stage: deploy
+  environment:
+    name: stage
+    url: http://stage.onelike.gusisoft.cl
+  only:
+    - stage
+  before_script:
+    - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
+    - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
+    - rm -rf ~/.ssh
+    - mkdir -p ~/.ssh
+    - echo -e "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - bash ./stage-deploy.sh
