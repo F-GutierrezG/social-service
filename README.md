@@ -1,4 +1,4 @@
-# Users Service
+# Companies Service
 You must choose the docker-compose file depending on the desired environment and replace the `%docker-file%` placeholders on the commands above
 ```
 Development: docker-compose-dev.yml
