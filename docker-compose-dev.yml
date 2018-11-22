@@ -1,58 +1,58 @@
 version: '3.6'
 
 services:
-  companies:
-    container_name: companies
+  social:
+    container_name: social
     build:
       context: ./
       dockerfile: Dockerfile-dev
     volumes:
       - './src:/usr/src/app'
     ports:
-      - 5002:5000
+      - 5003:5000
     environment:
       - FLASK_ENV=development
       - FLASK_APP=manage.py
       - APP_SETTINGS=project.config.DevelopmentConfig
-      - DATABASE_URL=postgres://postgres:postgres@companies-db:5432/companies
-      - DATABASE_TEST_URL=postgres://postgres:postgres@companies-db:5432/companies_test
+      - DATABASE_URL=postgres://postgres:postgres@social-db:5432/social
+      - DATABASE_TEST_URL=postgres://postgres:postgres@social-db:5432/social_test
       - SECRET_KEY=secret_key
     depends_on:
-      - companies-db
+      - social-db
     networks:
-      - companies-service-network
+      - social-service-network
       - client-network
 
-  companies-db:
-    container_name: companies-db
+  social-db:
+    container_name: social-db
     build:
       context: ./db
       dockerfile: Dockerfile
     ports:
-      - 5434:5432
+      - 5435:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     networks:
-      - companies-service-network
+      - social-service-network
 
-  companies-swagger:
-    container_name: companies-swagger
+  social-swagger:
+    container_name: social-swagger
     build:
       context: ./swagger
       dockerfile: Dockerfile
     ports:
-      - 8082:8080
+      - 8083:8080
     volumes:
       - './swagger/definitions:/usr/share/nginx/html/definitions'
     environment:
       - API_URL=definitions/swagger.yml
     networks:
-      - companies-service-network
+      - social-service-network
       - client-network
 
 networks:
-  companies-service-network:
-    name: companies-service-network
+  social-service-network:
+    name: social-service-network
   client-network:
     name: client-network

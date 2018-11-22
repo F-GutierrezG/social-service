@@ -10,4 +10,7 @@ sleep 1
 
 echo "PostgreSQL started"
 
-gunicorn -b 0.0.0.0:5000 manage:app
+python manage.py recreate-db
+python manage.py seed-db
+
+flask run --host=0.0.0.0

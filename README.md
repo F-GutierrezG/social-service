@@ -1,4 +1,4 @@
-# Companies Service
+# Social Service
 You must choose the docker-compose file depending on the desired environment and replace the `%docker-file%` placeholders on the commands above
 ```
 Development: docker-compose-dev.yml
@@ -8,21 +8,21 @@ Development: docker-compose-dev.yml
 ```
 docker-compose -f %docker-file% up -d --build
 ```
-Service is now up on http://localhost:5002, you can check the service's health on http://localhost:5002/companies/health
+Service is now up on http://localhost:5002, you can check the service's health on http://localhost:5002/social/health
 
 ## Create Database
 ```
-docker-compose -f %docker-file% run companies python manage.py recreate-db
+docker-compose -f %docker-file% run social python manage.py recreate-db
 ```
 
 ## Lint
 ```
-docker-compose -f %docker-file% run companies flake8 project
+docker-compose -f %docker-file% run social flake8 project
 ```
 
 ## Run Test
 ```
-docker-compose -f %docker-file% run companies python manage.py test
+docker-compose -f %docker-file% run social python manage.py test
 ```
 or
 ```
@@ -36,30 +36,30 @@ or
 
 ## Run a specific test file
 ```
-docker-compose -f %docker-file% run companies python manage.py test --file=health_test
+docker-compose -f %docker-file% run social python manage.py test --file=health_test
 ```
 
 ## Run Code Coverage
 ```
-docker-compose -f %docker-file% run companies python manage.py cov
+docker-compose -f %docker-file% run social python manage.py cov
 ```
 
 ## Run Shell
 ```
-docker-compose -f %docker-file% run companies python flask shell
+docker-compose -f %docker-file% run social python flask shell
 ```
 
 ## Create new DB Migrations
 ```
-docker-compose -f %docker-file% run companies python manage.py db migrate
+docker-compose -f %docker-file% run social python manage.py db migrate
 ```
 
 ## Apply DB Migrations
 ```
-docker-compose -f %docker-file% run companies python manage.py db upgrade
+docker-compose -f %docker-file% run social python manage.py db upgrade
 ```
 
 ## Init DB Migrations (Only new projects)
 ```
-docker-compose -f %docker-file% run companies python manage.py db init
+docker-compose -f %docker-file% run social python manage.py db init
 ```

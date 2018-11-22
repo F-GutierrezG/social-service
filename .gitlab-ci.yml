@@ -2,10 +2,10 @@ image: alpine
 
 variables:
   COMMIT: ${CI_COMMIT_SHA}
-  REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/companies-service
-  COMPANIES: companies
-  COMPANIES_DB: companies-db
-  SWAGGER: companies-swagger
+  REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/client/social-service
+  SOCIAL: social
+  SOCIAL_DB: social-db
+  SWAGGER: social-swagger
 
 stages:
   - tests
@@ -21,14 +21,14 @@ Testing:
     - sudo git clean -ffdx
   script:
     - docker-compose -f docker-compose-dev.yml up -d --build
-    - docker-compose -f docker-compose-dev.yml run companies python manage.py recreate-db
-    - docker-compose -f docker-compose-dev.yml run companies flake8 project
-    - docker-compose -f docker-compose-dev.yml run companies python manage.py cov
+    - docker-compose -f docker-compose-dev.yml run social python manage.py recreate-db
+    - docker-compose -f docker-compose-dev.yml run social flake8 project
+    - docker-compose -f docker-compose-dev.yml run social python manage.py cov
   after_script:
     - docker-compose -f docker-compose-dev.yml down
     - sudo git clean -ffdx
 
-Companies Service:
+Social Service:
   stage: registry
   only:
     - stage
@@ -36,14 +36,14 @@ Companies Service:
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
-    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/companies-service.git"
-    - export COMPANIES_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/social-service.git"
+    - export SOCIAL_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
   script:
-    - docker build $COMPANIES_REPO -t $COMPANIES:$COMMIT -f Dockerfile-stage
-    - docker tag $COMPANIES:$COMMIT $REGISTRY_REPO/$COMPANIES:$TAG
-    - docker push $REGISTRY_REPO/$COMPANIES:$TAG
+    - docker build $SOCIAL_REPO -t $SOCIAL:$COMMIT -f Dockerfile-stage
+    - docker tag $SOCIAL:$COMMIT $REGISTRY_REPO/$SOCIAL:$TAG
+    - docker push $REGISTRY_REPO/$SOCIAL:$TAG
 
-Companies DB:
+Social DB:
   stage: registry
   only:
     - stage
@@ -51,14 +51,14 @@ Companies DB:
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
-    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/companies-service.git"
-    - export COMPANIES_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/social-service.git"
+    - export SOCIAL_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
   script:
-    - docker build $COMPANIES_DB_REPO -t $COMPANIES_DB:$COMMIT -f Dockerfile
-    - docker tag $COMPANIES_DB:$COMMIT $REGISTRY_REPO/$COMPANIES_DB:$TAG
-    - docker push $REGISTRY_REPO/$COMPANIES_DB:$TAG
+    - docker build $SOCIAL_DB_REPO -t $SOCIAL_DB:$COMMIT -f Dockerfile
+    - docker tag $SOCIAL_DB:$COMMIT $REGISTRY_REPO/$SOCIAL_DB:$TAG
+    - docker push $REGISTRY_REPO/$SOCIAL_DB:$TAG
 
-Companies Swagger:
+Social Swagger:
   stage: registry
   only:
     - stage
@@ -66,7 +66,7 @@ Companies Swagger:
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
-    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/companies-service.git"
+    - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/client/social-service.git"
     - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
   script:
     - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
