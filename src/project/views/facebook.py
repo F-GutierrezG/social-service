@@ -11,7 +11,7 @@ def oauth():
     base_url = current_app.config['FACEBOOK_OAUTH_URL']
     client_id = current_app.config['FACEBOOK_CLIENT_ID']
     redirect_uri = current_app.config['FACEBOOK_REDIRECT_URI']
-    state = "{company={}}".format(1)
+    state = "company".format(1)
 
     url = '{}?client_id={}&redirect_uri={}&state={}'.format(
         base_url, client_id, redirect_uri, state)
