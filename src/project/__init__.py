@@ -11,8 +11,10 @@ migrate = Migrate()
 
 def register_blueprints(app):
     from project.views.health import health_blueprint
+    from project.views.facebook import facebook_blueprint
 
     app.register_blueprint(health_blueprint)
+    app.register_blueprint(facebook_blueprint)
     pass
 
 
