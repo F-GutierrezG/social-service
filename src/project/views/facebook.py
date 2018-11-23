@@ -1,41 +1,26 @@
-import json
-import requests
-from flask import Blueprint, redirect, current_app, request, jsonify
+
+from flask import Blueprint, redirect, request, jsonify
+
+from project.auth import authenticate
+from project.logics import FacebookLogics
 
 
 facebook_blueprint = Blueprint('facebook', __name__)
 
 
-@facebook_blueprint.route('/social/facebook/oauth')
-def oauth():
-    base_url = current_app.config['FACEBOOK_OAUTH_URL']
-    client_id = current_app.config['FACEBOOK_CLIENT_ID']
-    redirect_uri = current_app.config['FACEBOOK_REDIRECT_URI']
-    state = "company".format(1)
-
-    url = '{}?client_id={}&redirect_uri={}&state={}'.format(
-        base_url, client_id, redirect_uri, state)
-
+@facebook_blueprint.route('/social/facebook/oauth/<company_id>')
+@authenticate
+def oauth(user, company_id):
+    url = FacebookLogics().oauth(user, company_id)
     return redirect(url, code=302)
 
 
 @facebook_blueprint.route('/social/facebook/access_token')
 def access_token():
-    base_url = current_app.config['FACEBOOK_ACCESS_TOKEN_URL']
-    client_id = current_app.config['FACEBOOK_CLIENT_ID']
-    redirect_uri = current_app.config['FACEBOOK_REDIRECT_URI']
-    client_secret = current_app.config['FACEBOOK_CLIENT_SECRET']
     code = request.args.get('code')
+    state = request.args.get('state')
 
-    print('*********CODE', code)
-
-    url = '{}?client_id={}&redirect_uri={}&client_secret={}&code={}'.format(
-        base_url, client_id, redirect_uri, client_secret, code)
-
-    response = requests.get(url)
-    data = json.loads(response.text)
-
-    print('*********RESPONSE', data)
+    response, data = FacebookLogics().access_token(code, state)
 
     return jsonify({
         'message': data,
