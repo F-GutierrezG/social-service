@@ -29,7 +29,7 @@ def access_token():
 
     print('*********CODE', code)
 
-    url = '{}?client_id={}&redirect_url={}&client_secret={}&code={}'.format(
+    url = '{}?client_id={}&redirect_uri={}&client_secret={}&code={}'.format(
         base_url, client_id, redirect_uri, client_secret, code)
 
     response = requests.get(url)
