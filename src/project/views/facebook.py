@@ -23,13 +23,14 @@ def oauth():
 def access_token():
     base_url = current_app.config['FACEBOOK_ACCESS_TOKEN_URL']
     client_id = current_app.config['FACEBOOK_CLIENT_ID']
+    redirect_uri = current_app.config['FACEBOOK_REDIRECT_URI']
     client_secret = current_app.config['FACEBOOK_CLIENT_SECRET']
     code = request.args.get('code')
 
     print('*********CODE', code)
 
     url = '{}?client_id={}&redirect_url={}&client_secret={}&code={}'.format(
-        base_url, client_id, client_secret, code)
+        base_url, client_id, redirect_uri, client_secret, code)
 
     response = requests.get(url)
     data = json.loads(response.text)
