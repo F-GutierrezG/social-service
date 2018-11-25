@@ -17,6 +17,7 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@social-db:5432/social
       - DATABASE_TEST_URL=postgres://postgres:postgres@social-db:5432/social_test
       - SECRET_KEY=secret_key
+      - USERS_SERVICE_URL=http://users:5000
       - FACEBOOK_OAUTH_URL=https://www.facebook.com/v3.2/dialog/oauth
       - FACEBOOK_CLIENT_ID=2207909899468654
       - FACEBOOK_CLIENT_SECRET=0bd8e7bfd8aa8f0a7824e3aeda19961c

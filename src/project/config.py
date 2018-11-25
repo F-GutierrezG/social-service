@@ -9,9 +9,7 @@ class BaseConfig:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
-    BCRYPT_LOG_ROUNDS = 13
-    TOKEN_EXPIRATION_DAYS = 30
-    TOKEN_EXPIRATION_SECONDS = 0
+    USERS_SERVICE_MOCK = False
     FACEBOOK_OAUTH_URL = os.environ.get('FACEBOOK_OAUTH_URL')
     FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID')
     FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET')
@@ -24,7 +22,7 @@ class DevelopmentConfig(BaseConfig):
     PRESERVE_CONTEXT_ON_EXCEPTION = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_ECHO = True
-    BCRYPT_LOG_ROUNDS = 4
+    USERS_SERVICE_MOCK = True
 
 
 class TestingConfig(BaseConfig):
@@ -33,16 +31,15 @@ class TestingConfig(BaseConfig):
     PRESERVE_CONTEXT_ON_EXCEPTION = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_TEST_URL')
     SQLALCHEMY_ECHO = False
-    BCRYPT_LOG_ROUNDS = 4
-    TOKEN_EXPIRATION_DAYS = 0
-    TOKEN_EXPIRATION_SECONDS = 3
+    USERS_SERVICE_MOCK = True
 
 
 class StagingConfig(BaseConfig):
     """ Staging configuration """
-    pass
+    USERS_SERVICE_MOCK = False
 
 
 class ProductionConfig(BaseConfig):
     """ Production configuration """
     DEBUG = False
+    USERS_SERVICE_MOCK = False
