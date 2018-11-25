@@ -12,7 +12,10 @@ facebook_blueprint = Blueprint('facebook', __name__)
 @authenticate
 def oauth(user, company_id):
     url = FacebookLogics().oauth(user, company_id)
-    return redirect(url, code=302)
+    return jsonify({
+        'message': 'facebook oauth url',
+        'data': url
+    }), 200
 
 
 @facebook_blueprint.route('/social/facebook/access_token')
