@@ -1,5 +1,4 @@
-
-from flask import Blueprint, redirect, request, jsonify
+from flask import Blueprint, request, jsonify
 
 from project.auth import authenticate
 from project.logics import FacebookLogics
