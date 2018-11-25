@@ -14,5 +14,5 @@ class FacebookAuth(db.Model):
     code = db.Column(db.String(2048), nullable=True)
     code_created = db.Column(db.DateTime, nullable=True)
 
-    short_lived_access_token = db.Column(db.String(128), nullable=True)
+    short_lived_access_token = db.Column(db.String(256), nullable=True)
     short_lived_access_token_created = db.Column(db.DateTime, nullable=True)

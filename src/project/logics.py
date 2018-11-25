@@ -17,9 +17,11 @@ class FacebookLogics:
         url = '{}?client_id={}&redirect_uri={}&state={}'.format(
             base_url, client_id, redirect_uri, state)
 
-        auth = FacebookAuth(company_id=company_id, created_by=user.id)
-        db.session.add(auth)
-        db.session.commit()
+        auth = FacebookAuth.query.filter_by(company_id=company_id).first()
+        if auth is None:
+            auth = FacebookAuth(company_id=company_id, created_by=user.id)
+            db.session.add(auth)
+            db.session.commit()
 
         return url
 
@@ -29,7 +31,7 @@ class FacebookLogics:
         redirect_uri = current_app.config['FACEBOOK_REDIRECT_URI']
         client_secret = current_app.config['FACEBOOK_CLIENT_SECRET']
 
-        auth = FacebookAuth.query.filter(company_id=company_id).first()
+        auth = FacebookAuth.query.filter_by(company_id=company_id).first()
         auth.code = code
         auth.code_created = func.now()
         db.session.add(auth)
