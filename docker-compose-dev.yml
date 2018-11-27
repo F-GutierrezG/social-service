@@ -27,7 +27,7 @@ services:
       - social-db
     networks:
       - social-service-network
-      - client-network
+      - onelike-network
 
   social-db:
     container_name: social-db
@@ -55,10 +55,10 @@ services:
       - API_URL=definitions/swagger.yml
     networks:
       - social-service-network
-      - client-network
+      - onelike-network
 
 networks:
   social-service-network:
     name: social-service-network
-  client-network:
-    name: client-network
+  onelike-network:
+    name: onelike-network
