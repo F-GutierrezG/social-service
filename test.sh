@@ -3,11 +3,11 @@
 type=$1
 
 watchTests() {
-  docker-compose -f docker-compose-dev.yml run social ptw -cn --runner "python manage.py test"
+  docker container exec social ptw -cn --runner "python manage.py test"
 }
 
 test() {
-  docker-compose -f docker-compose-dev.yml run social python manage.py test
+  docker container exec social python manage.py test
 }
 
 if [[ "${type}" == "watch" ]]; then
