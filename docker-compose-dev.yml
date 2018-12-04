@@ -23,6 +23,7 @@ services:
       - FACEBOOK_CLIENT_SECRET=0bd8e7bfd8aa8f0a7824e3aeda19961c
       - FACEBOOK_REDIRECT_URI=https://stage.onelike.gusisoft.cl/social/facebook/access_token
       - FACEBOOK_ACCESS_TOKEN_URL=https://graph.facebook.com/v3.2/oauth/access_token
+    restart: always
     depends_on:
       - social-db
     networks:
@@ -39,6 +40,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    restart: always
     networks:
       - social-service-network
 
@@ -53,6 +55,7 @@ services:
       - './swagger/definitions:/usr/share/nginx/html/definitions'
     environment:
       - API_URL=definitions/swagger.yml
+    restart: always
     networks:
       - social-service-network
       - onelike-network
