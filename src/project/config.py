@@ -10,6 +10,7 @@ class BaseConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False
     USERS_SERVICE_MOCK = False
+    AUTH_SERVICE_URL = os.environ.get('AUTH_SERVICE_URL')
     USERS_SERVICE_URL = os.environ.get('USERS_SERVICE_URL')
     FACEBOOK_OAUTH_URL = os.environ.get('FACEBOOK_OAUTH_URL')
     FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID')
