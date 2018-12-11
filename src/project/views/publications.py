@@ -26,3 +26,13 @@ def create(user):
     return success_response(
         data=publication,
         status_code=201)
+
+
+@publications_blueprint.route('/social/publications', methods=['GET'])
+@authenticate
+def list(user):
+    publications = PublicationLogics().list()
+
+    return success_response(
+        data=publications,
+        status_code=200)

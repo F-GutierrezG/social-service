@@ -10,6 +10,11 @@ from project.serializers import PublicationSerializer
 
 
 class PublicationLogics:
+    def list(self):
+        publications = Publication.query.all()
+
+        return PublicationSerializer.to_array(publications)
+
     def create(self, data):
         mapped_data = self.__map_data(data)
 
