@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 
 from auth.decorators import authenticate
 from project.logics import PublicationLogics
