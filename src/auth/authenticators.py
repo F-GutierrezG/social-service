@@ -1,19 +1,10 @@
-from functools import wraps
-from flask import request, jsonify, current_app
-
-from project.services import AuthService
+from flask import request, jsonify
+from .models import User
+from .services import AuthService
 
 
 def forbidden(message='forbidden'):
     return jsonify({'message': message}), 403
-
-
-class User:
-    def __init__(self, data):
-        self.id = data['id']
-        self.first_name = data['first_name']
-        self.last_name = data['last_name']
-        self.email = data['email']
 
 
 class Authenticator:
@@ -51,7 +42,7 @@ class MockAuthenticator:
     instance = None
 
     def __init__(self):
-        self.user = None
+        self.clear()
 
     @staticmethod
     def get_instance():
@@ -59,24 +50,14 @@ class MockAuthenticator:
             MockAuthenticator.instance = MockAuthenticator()
         return MockAuthenticator.instance
 
+    def clear(self):
+        self.user = None
+        return self
+
     def authenticate(self, f, *args, **kwargs):
+        if self.user is None:
+            return forbidden()
         return f(self.user, *args, **kwargs)
 
     def set_user(self, user_data):
         self.user = User(user_data)
-
-
-class AuthenticatorFactory:
-    @staticmethod
-    def get_instance():
-        if current_app.config['USERS_SERVICE_MOCK']:
-            return MockAuthenticator.get_instance()
-        return Authenticator()
-
-
-def authenticate(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        return AuthenticatorFactory.get_instance().authenticate(
-            f, *args, **kwargs)
-    return decorated_function

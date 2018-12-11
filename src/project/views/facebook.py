@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from project.auth import authenticate
+from auth.decorators import authenticate
 from project.logics import FacebookLogics
 
 
