@@ -17,6 +17,9 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@social-db:5432/social
       - DATABASE_TEST_URL=postgres://postgres:postgres@social-db:5432/social_test
       - SECRET_KEY=secret_key
+      - AWS_BUCKET_NAME=onelike-devel
+      - AWS_ACCESS_KEY_ID=AKIAJKNHYPESB4G22IXQ
+      - AWS_SECRET_ACCESS_KEY=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
       - USERS_SERVICE_URL=http://users:5000/users
       - AUTH_SERVICE_URL=http://users:5000/auth
       - FACEBOOK_OAUTH_URL=https://www.facebook.com/v3.2/dialog/oauth

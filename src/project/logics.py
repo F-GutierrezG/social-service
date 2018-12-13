@@ -7,6 +7,7 @@ from sqlalchemy.sql import func
 from project import db
 from project.models import FacebookAuth, Publication, PublicationSocialNetwork
 from project.serializers import PublicationSerializer
+from project.uploaders import S3Uploader
 
 
 class PublicationLogics:
@@ -38,7 +39,7 @@ class PublicationLogics:
         return mapped_data
 
     def __upload_image(self, image):
-        return "http://url_falsa"
+        return S3Uploader().upload(image)
 
     def __add_publication_social_networks(self, publication, data):
         for social_network in data['social_networks']:

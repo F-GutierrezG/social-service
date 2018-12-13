@@ -17,6 +17,7 @@ class BaseConfig:
     FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET')
     FACEBOOK_REDIRECT_URI = os.environ.get('FACEBOOK_REDIRECT_URI')
     FACEBOOK_ACCESS_TOKEN_URL = os.environ.get('FACEBOOK_ACCESS_TOKEN_URL')
+    AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME')
 
 
 class DevelopmentConfig(BaseConfig):
