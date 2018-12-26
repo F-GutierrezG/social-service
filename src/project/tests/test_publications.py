@@ -117,7 +117,7 @@ class TestCreatePublication(BaseTestCase):
                 headers={'Authorization': 'Bearer {}'.format(random_string())},
                 content_type='multipart/form-data'
             )
-            response_data = json.loads(response.data.decode())
+            # response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 201)
             self.assertEqual(Publication.query.count(), 1)
 
