@@ -1,5 +1,7 @@
+import io
 import json
 import random
+import datetime
 import unittest
 
 from auth.factories import AuthenticatorFactory
@@ -79,6 +81,45 @@ class TestListPublications(BaseTestCase):
                 Publication.query.count(),
                 publications_company_1_qty + publications_company_2_qty)
             self.assertEqual(len(response_data), publications_company_1_qty)
+
+
+class TestCreatePublication(BaseTestCase):
+    """Tests for create publications"""
+
+    def test_create_publication(self):
+        """Ensure create publications behaves correctly"""
+        self.assertEqual(Publication.query.count(), 0)
+
+        user = add_user()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(user)
+
+        current_time = datetime.datetime.today()
+
+        date = '{}-{}-{}'.format(
+            current_time.year, current_time.month, current_time.day)
+        time = '{}:{}'.format(current_time.hour, current_time.minute)
+
+        data = {
+            'company_id': random.randint(0, 1000),
+            'date': date,
+            'time': time,
+            'message': random_string(256),
+            'image': (io.BytesIO(b"abcdef"), 'test.jpg'),
+            'social_networks': random_string(),
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/social/publications',
+                buffered=True,
+                data=data,
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='multipart/form-data'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(Publication.query.count(), 1)
 
 
 if __name__ == '__main__':
