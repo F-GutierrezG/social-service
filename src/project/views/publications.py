@@ -31,7 +31,7 @@ def create(user):
 @publications_blueprint.route('/social/publications', methods=['GET'])
 @authenticate
 def list(user):
-    publications = PublicationLogics().list()
+    publications = PublicationLogics().list(user)
 
     return success_response(
         data=publications,

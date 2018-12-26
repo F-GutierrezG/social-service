@@ -11,11 +11,11 @@ test() {
 }
 
 if [[ "${type}" == "watch" ]]; then
-  echo "\n"
+  echo ""
   echo "Testing!"
   watchTests
 else
-  echo "\n"
+  echo ""
   echo "Testing!"
   test
 fi

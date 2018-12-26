@@ -1,20 +1,30 @@
-import json
-import requests
-
-from flask import current_app
-from sqlalchemy.sql import func
+from companies_service.factories import CompaniesServiceFactory
 
 from project import db
-from project.models import FacebookAuth, Publication, PublicationSocialNetwork
+from project.models import Publication, PublicationSocialNetwork
 from project.serializers import PublicationSerializer
 from project.uploaders import S3Uploader
 
 
 class PublicationLogics:
-    def list(self):
-        publications = Publication.query.all()
+    def list(self, user):
+        if user.admin is True:
+            publications = Publication.query.all()
+        else:
+            companies_ids = self.__get_user_companies_ids()
+            publications = Publication.query.filter(
+                Publication.company_id.in_(companies_ids))
 
         return PublicationSerializer.to_array(publications)
+
+    def __get_user_companies_ids(self):
+        companies_service = CompaniesServiceFactory.get_instance()
+        user_companies = companies_service.get_user_companies()
+
+        return self.__get_companies_ids(user_companies)
+
+    def __get_companies_ids(self, companies):
+        return list(map(lambda company: company['id'], companies))
 
     def create(self, data):
         mapped_data = self.__map_data(data)
@@ -45,48 +55,3 @@ class PublicationLogics:
         for social_network in data['social_networks']:
             publication.social_networks.append(PublicationSocialNetwork(
                 social_network=social_network))
-
-
-class FacebookLogics:
-    def oauth(self, user, company_id):
-        base_url = current_app.config['FACEBOOK_OAUTH_URL']
-        client_id = current_app.config['FACEBOOK_CLIENT_ID']
-        redirect_uri = current_app.config['FACEBOOK_REDIRECT_URI']
-        state = company_id
-
-        url = '{}?client_id={}&redirect_uri={}&state={}'.format(
-            base_url, client_id, redirect_uri, state)
-
-        auth = FacebookAuth.query.filter_by(company_id=company_id).first()
-        if auth is None:
-            auth = FacebookAuth(company_id=company_id, created_by=user.id)
-            db.session.add(auth)
-            db.session.commit()
-
-        return url
-
-    def access_token(self, code, company_id):
-        base_url = current_app.config['FACEBOOK_ACCESS_TOKEN_URL']
-        client_id = current_app.config['FACEBOOK_CLIENT_ID']
-        redirect_uri = current_app.config['FACEBOOK_REDIRECT_URI']
-        client_secret = current_app.config['FACEBOOK_CLIENT_SECRET']
-
-        auth = FacebookAuth.query.filter_by(company_id=company_id).first()
-        auth.code = code
-        auth.code_created = func.now()
-        db.session.add(auth)
-        db.session.commit()
-
-        url = '{}?client_id={}&redirect_uri={}&client_secret={}&code={}'\
-            .format(base_url, client_id, redirect_uri, client_secret, code)
-
-        response = requests.get(url)
-        data = json.loads(response.text)
-
-        auth.short_lived_access_token = data['access_token']
-        auth.short_lived_access_token_created = func.now()
-
-        db.session.add(auth)
-        db.session.commit()
-
-        return response, data

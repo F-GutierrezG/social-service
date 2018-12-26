@@ -12,7 +12,7 @@ class PublicationSerializer:
             'created_by': publication.created_by,
             'updated': str(publication.updated),
             'updated_by': publication.updated_by,
-            'status': publication.status,
+            'status': publication.status.value,
             'social_networks': PublicationSerializer.__social_networks(
                 publication)
         }

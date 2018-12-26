@@ -4,14 +4,15 @@ from project import db
 from sqlalchemy.sql import func
 
 
+class PublicationStatus(enum.Enum):
+    PENDING = 'PENDING'
+    ACCEPTED = 'ACCEPTED'
+    REJECTED = 'REJECTED'
+
+
 class Publication(db.Model):
     __tablename__ = 'publications'
     __table_args__ = {'schema': 'social'}
-
-    class Status(enum.Enum):
-        PENDING = 'PENDING'
-        ACCEPTED = 'ACCEPTED'
-        REJECTED = 'REJECTED'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     company_id = db.Column(db.Integer, nullable=False)
@@ -25,7 +26,9 @@ class Publication(db.Model):
     message = db.Column(db.Text, nullable=True)
     image_url = db.Column(db.Text, nullable=True)
     status = db.Column(
-        db.String(32), db.Enum(Status), default=Status.PENDING, nullable=False)
+        db.Enum(PublicationStatus),
+        default=PublicationStatus.PENDING,
+        nullable=False)
 
     social_networks = db.relationship(
         "PublicationSocialNetwork", backref='publication')
@@ -41,19 +44,3 @@ class PublicationSocialNetwork(db.Model):
         db.Integer,
         db.ForeignKey(Publication.id),
         nullable=False)
-
-
-class FacebookAuth(db.Model):
-    __tablename__ = 'facebook_auth'
-    __table_args__ = {'schema': 'social'}
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    company_id = db.Column(db.Integer, nullable=False)
-    created = db.Column(db.DateTime, default=func.now(), nullable=False)
-    created_by = db.Column(db.Integer, nullable=False)
-
-    code = db.Column(db.String(2048), nullable=True)
-    code_created = db.Column(db.DateTime, nullable=True)
-
-    short_lived_access_token = db.Column(db.String(256), nullable=True)
-    short_lived_access_token_created = db.Column(db.DateTime, nullable=True)
