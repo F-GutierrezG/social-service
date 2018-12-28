@@ -6,7 +6,7 @@ from users_service.factories import UsersServiceFactory
 from companies_service.factories import CompaniesServiceFactory
 
 from project import db
-from project.models import Publication, PublicationStatus
+from project.models import Publication
 
 
 def add_publication(company_id=1):
@@ -14,10 +14,12 @@ def add_publication(company_id=1):
         company_id=company_id,
         created_by=1,
         datetime=func.now(),
-        status=PublicationStatus.PENDING)
+        status=Publication.Status.PENDING)
 
     db.session.add(publication)
     db.session.commit()
+
+    return publication
 
 
 def add_admin():

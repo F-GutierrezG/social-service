@@ -4,15 +4,14 @@ from project import db
 from sqlalchemy.sql import func
 
 
-class PublicationStatus(enum.Enum):
-    PENDING = 'PENDING'
-    ACCEPTED = 'ACCEPTED'
-    REJECTED = 'REJECTED'
-
-
 class Publication(db.Model):
     __tablename__ = 'publications'
     __table_args__ = {'schema': 'social'}
+
+    class Status(enum.Enum):
+        PENDING = 'PENDING'
+        ACCEPTED = 'ACCEPTED'
+        REJECTED = 'REJECTED'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     company_id = db.Column(db.Integer, nullable=False)
@@ -26,9 +25,10 @@ class Publication(db.Model):
     message = db.Column(db.Text, nullable=True)
     image_url = db.Column(db.Text, nullable=True)
     status = db.Column(
-        db.Enum(PublicationStatus),
-        default=PublicationStatus.PENDING,
+        db.Enum(Status),
+        default=Status.PENDING,
         nullable=False)
+    reject_reason = db.Column(db.Text, nullable=True)
 
     social_networks = db.relationship(
         "PublicationSocialNetwork", backref='publication')

@@ -17,15 +17,6 @@ class PublicationLogics:
 
         return PublicationSerializer.to_array(publications)
 
-    def __get_user_companies_ids(self):
-        companies_service = CompaniesServiceFactory.get_instance()
-        user_companies = companies_service.get_user_companies()
-
-        return self.__get_companies_ids(user_companies)
-
-    def __get_companies_ids(self, companies):
-        return list(map(lambda company: company['id'], companies))
-
     def create(self, data):
         mapped_data = self.__map_data(data)
 
@@ -36,6 +27,36 @@ class PublicationLogics:
         db.session.commit()
 
         return PublicationSerializer.to_dict(publication)
+
+    def reject(self, id, message):
+        publication = Publication.query.filter_by(id=id).first()
+
+        publication.status = Publication.Status.REJECTED
+        publication.reject_reason = message
+
+        db.session.add(publication)
+        db.session.commit()
+
+        return PublicationSerializer.to_dict(publication)
+
+    def accept(self, id):
+        publication = Publication.query.filter_by(id=id).first()
+
+        publication.status = Publication.Status.ACCEPTED
+
+        db.session.add(publication)
+        db.session.commit()
+
+        return PublicationSerializer.to_dict(publication)
+
+    def __get_user_companies_ids(self):
+        companies_service = CompaniesServiceFactory.get_instance()
+        user_companies = companies_service.get_user_companies()
+
+        return self.__get_companies_ids(user_companies)
+
+    def __get_companies_ids(self, companies):
+        return list(map(lambda company: company['id'], companies))
 
     def __map_data(self, data):
         mapped_data = {}

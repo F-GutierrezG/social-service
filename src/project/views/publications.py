@@ -36,3 +36,26 @@ def list(user):
     return success_response(
         data=publications,
         status_code=200)
+
+
+@publications_blueprint.route(
+    '/social/publications/<id>/reject', methods=['POST'])
+@authenticate
+def reject(user, id):
+    message = request.get_json()['message']
+    publication = PublicationLogics().reject(id, message)
+
+    return success_response(
+        data=publication,
+        status_code=200)
+
+
+@publications_blueprint.route(
+    '/social/publications/<id>/accept', methods=['POST'])
+@authenticate
+def accept(user, id):
+    publication = PublicationLogics().accept(id)
+
+    return success_response(
+        data=publication,
+        status_code=200)
