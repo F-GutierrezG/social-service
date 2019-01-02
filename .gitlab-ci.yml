@@ -98,9 +98,6 @@ Deploy Stage:
   script:
     - bash ./stage-deploy.sh
 
-
-
-
 Social Service Production:
   stage: registry
   only:
@@ -135,13 +132,14 @@ Cleaning:
   stage: cleanup
   only:
     - stage
+    - production
   script:
     - docker image rm -f $(docker image ls -q)
 
 Deploy Production:
   stage: deploy
   environment:
-    name: stage
+    name: production
     url: http://onelike.gusisoft.cl
   only:
     - production
