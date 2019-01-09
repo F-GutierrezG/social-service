@@ -61,10 +61,12 @@ class PublicationLogics:
     def __map_data(self, data):
         mapped_data = {}
 
+        mapped_data['title'] = data['title']
         mapped_data['created_by'] = data['created_by']
         mapped_data['company_id'] = data['company_id']
         mapped_data['datetime'] = "{} {}".format(data['date'], data['time'])
         mapped_data['message'] = data['message']
+        mapped_data['additional'] = data['additional']
         mapped_data['image_url'] = self.__upload_image(data['image'])
 
         return mapped_data

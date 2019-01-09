@@ -22,7 +22,9 @@ class Publication(db.Model):
     updated_by = db.Column(db.Integer)
 
     datetime = db.Column(db.DateTime, nullable=False)
+    title = db.Column(db.Text, nullable=False)
     message = db.Column(db.Text, nullable=True)
+    additional = db.Column(db.Text, nullable=True)
     image_url = db.Column(db.Text, nullable=True)
     status = db.Column(
         db.Enum(Status),

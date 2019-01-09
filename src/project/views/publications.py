@@ -15,9 +15,11 @@ def create(user):
     publication_data['company_id'] = 1
     publication_data['date'] = request.form.get('date')
     publication_data['time'] = request.form.get('time')
+    publication_data['title'] = request.form.get('title')
     publication_data['social_networks'] = request.form.get(
         'social_networks').split(',')
     publication_data['message'] = request.form.get('message')
+    publication_data['additional'] = request.form.get('additional')
     publication_data['image'] = request.files.get('image')
     publication_data['created_by'] = user.id
 
@@ -39,10 +41,11 @@ def list(user):
 
 
 @publications_blueprint.route(
-    '/social/publications/<id>/reject', methods=['POST'])
+    '/social/publications/<id>/reject', methods=['PUT'])
 @authenticate
 def reject(user, id):
-    message = request.get_json()['message']
+    message = "Rechazado"
+    # message = request.get_json()['message']
     publication = PublicationLogics().reject(id, message)
 
     return success_response(
@@ -51,7 +54,7 @@ def reject(user, id):
 
 
 @publications_blueprint.route(
-    '/social/publications/<id>/accept', methods=['POST'])
+    '/social/publications/<id>/accept', methods=['PUT'])
 @authenticate
 def accept(user, id):
     publication = PublicationLogics().accept(id)
