@@ -44,8 +44,7 @@ def list(user):
     '/social/publications/<id>/reject', methods=['PUT'])
 @authenticate
 def reject(user, id):
-    message = "Rechazado"
-    # message = request.get_json()['message']
+    message = request.get_json()['message']
     publication = PublicationLogics().reject(id, message)
 
     return success_response(

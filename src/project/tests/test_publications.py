@@ -104,6 +104,7 @@ class TestCreatePublication(BaseTestCase):
             'company_id': random.randint(0, 1000),
             'date': date,
             'time': time,
+            'title': random_string(),
             'message': random_string(256),
             'image': (io.BytesIO(b"abcdef"), 'test.jpg'),
             'social_networks': random_string(),
@@ -141,7 +142,7 @@ class TestRejectPublication(BaseTestCase):
             Publication.Status.PENDING)
 
         with self.client:
-            response = self.client.post(
+            response = self.client.put(
                 '/social/publications/{}/reject'.format(publication.id),
                 data=json.dumps(data),
                 headers={'Authorization': 'Bearer {}'.format(random_string())},
@@ -173,7 +174,7 @@ class TestAcceptPublication(BaseTestCase):
             Publication.Status.PENDING)
 
         with self.client:
-            response = self.client.post(
+            response = self.client.put(
                 '/social/publications/{}/accept'.format(publication.id),
                 headers={'Authorization': 'Bearer {}'.format(random_string())},
                 content_type='application/json'

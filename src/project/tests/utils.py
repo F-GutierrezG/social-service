@@ -14,6 +14,7 @@ def add_publication(company_id=1):
         company_id=company_id,
         created_by=1,
         datetime=func.now(),
+        title=random_string(),
         status=Publication.Status.PENDING)
 
     db.session.add(publication)
