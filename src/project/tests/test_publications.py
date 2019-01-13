@@ -82,6 +82,30 @@ class TestListPublications(BaseTestCase):
                 publications_company_1_qty + publications_company_2_qty)
             self.assertEqual(len(response_data), publications_company_1_qty)
 
+    def test_list_not_deleted_publications(self):
+        """Ensure list publications behaves correctly"""
+        publications_qty = random.randint(5, 10)
+
+        self.assertEqual(Publication.query.count(), 0)
+
+        for i in range(0, publications_qty):
+            add_publication(status='DELETED')
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        with self.client:
+            response = self.client.get(
+                '/social/publications',
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(Publication.query.count(), publications_qty)
+            self.assertEqual(len(response_data), 0)
+
 
 class TestCreatePublication(BaseTestCase):
     """Tests for create publications"""
@@ -156,6 +180,36 @@ class TestRejectPublication(BaseTestCase):
             self.assertEqual(publication.status, Publication.Status.REJECTED)
             self.assertEqual(publication.reject_reason, data['message'])
 
+    def test_reject_rejected_publication(self):
+        """Reject publication behaves correctly"""
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.REJECTED)
+        data = {
+            'message': random_string()
+        }
+
+        self.assertEqual(
+            Publication.query.filter_by(id=publication.id).first().status,
+            Publication.Status.REJECTED)
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}/reject'.format(publication.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+            # response_data = json.loads(response.data.decode())
+            publication = Publication.query.filter_by(
+                id=publication.id).first()
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(Publication.query.count(), 1)
+            self.assertEqual(publication.status, Publication.Status.REJECTED)
+            self.assertNotEqual(publication.reject_reason, data['message'])
+
 
 class TestAcceptPublication(BaseTestCase):
     """Tests for accept publications"""
@@ -179,12 +233,67 @@ class TestAcceptPublication(BaseTestCase):
                 headers={'Authorization': 'Bearer {}'.format(random_string())},
                 content_type='application/json'
             )
-            # response_data = json.loads(response.data.decode())
+            response_data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(Publication.query.count(), 1)
             self.assertEqual(
                 Publication.query.filter_by(id=publication.id).first().status,
                 Publication.Status.ACCEPTED)
+            self.assertEqual(
+                response_data['status'],
+                'ACCEPTED')
+
+    def test_accept_accepted_publication(self):
+        """Accept publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.ACCEPTED)
+
+        self.assertEqual(
+            Publication.query.filter_by(id=publication.id).first().status,
+            Publication.Status.ACCEPTED)
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}/accept'.format(publication.id),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(Publication.query.count(), 1)
+            self.assertEqual(publication.status, Publication.Status.ACCEPTED)
+
+
+class TestDeletePublication(BaseTestCase):
+    """Tests for delete publications"""
+
+    def test_delete_publication(self):
+        """Delete publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication()
+
+        self.assertEqual(
+            Publication.query.filter_by(id=publication.id).first().status,
+            Publication.Status.PENDING)
+
+        with self.client:
+            response = self.client.delete(
+                '/social/publications/{}'.format(publication.id),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+            self.assertEqual(response.status_code, 204)
+            self.assertEqual(Publication.query.count(), 1)
+            self.assertEqual(
+                Publication.query.filter_by(id=publication.id).first().status,
+                Publication.Status.DELETED)
 
 
 if __name__ == '__main__':

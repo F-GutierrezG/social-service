@@ -9,13 +9,13 @@ from project import db
 from project.models import Publication
 
 
-def add_publication(company_id=1):
+def add_publication(company_id=1, status=Publication.Status.PENDING):
     publication = Publication(
         company_id=company_id,
         created_by=1,
         datetime=func.now(),
         title=random_string(),
-        status=Publication.Status.PENDING)
+        status=status)
 
     db.session.add(publication)
     db.session.commit()

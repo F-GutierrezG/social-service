@@ -6,14 +6,21 @@ from project.serializers import PublicationSerializer
 from project.uploaders import S3Uploader
 
 
+class BadRequest(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 class PublicationLogics:
     def list(self, user):
         if user.admin is True:
-            publications = Publication.query.all()
+            publications = Publication.query.filter(
+                Publication.status != Publication.Status.DELETED)
         else:
             companies_ids = self.__get_user_companies_ids()
             publications = Publication.query.filter(
-                Publication.company_id.in_(companies_ids))
+                Publication.company_id.in_(companies_ids),
+                Publication.status != Publication.Status.DELETED)
 
         return PublicationSerializer.to_array(publications)
 
@@ -28,26 +35,43 @@ class PublicationLogics:
 
         return PublicationSerializer.to_dict(publication)
 
-    def reject(self, id, message):
+    def reject(self, id, message, user):
         publication = Publication.query.filter_by(id=id).first()
+
+        if publication.status == Publication.Status.REJECTED:
+            raise BadRequest("Already rejected")
 
         publication.status = Publication.Status.REJECTED
         publication.reject_reason = message
+        publication.updated_by = user.id
 
         db.session.add(publication)
         db.session.commit()
 
         return PublicationSerializer.to_dict(publication)
 
-    def accept(self, id):
+    def accept(self, id, user):
         publication = Publication.query.filter_by(id=id).first()
 
+        if publication.status == Publication.Status.ACCEPTED:
+            raise BadRequest("Already rejected")
+
         publication.status = Publication.Status.ACCEPTED
+        publication.updated_by = user.id
 
         db.session.add(publication)
         db.session.commit()
 
         return PublicationSerializer.to_dict(publication)
+
+    def delete(self, id, updated_by):
+        publication = Publication.query.filter_by(id=id).first()
+
+        publication.status = Publication.Status.DELETED
+        publication.updated_by = updated_by.id
+
+        db.session.add(publication)
+        db.session.commit()
 
     def __get_user_companies_ids(self):
         companies_service = CompaniesServiceFactory.get_instance()

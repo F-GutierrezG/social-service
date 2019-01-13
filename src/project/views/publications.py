@@ -1,8 +1,8 @@
 from flask import Blueprint, request
 
 from auth.decorators import authenticate
-from project.logics import PublicationLogics
-from project.views.utils import success_response
+from project.logics import PublicationLogics, BadRequest
+from project.views.utils import success_response, failed_response
 
 
 publications_blueprint = Blueprint('publications', __name__)
@@ -45,7 +45,11 @@ def list(user):
 @authenticate
 def reject(user, id):
     message = request.get_json()['message']
-    publication = PublicationLogics().reject(id, message)
+
+    try:
+        publication = PublicationLogics().reject(id, message, user)
+    except BadRequest as e:
+        return failed_response(message=e.message, status_code=400)
 
     return success_response(
         data=publication,
@@ -56,8 +60,19 @@ def reject(user, id):
     '/social/publications/<id>/accept', methods=['PUT'])
 @authenticate
 def accept(user, id):
-    publication = PublicationLogics().accept(id)
+    try:
+        publication = PublicationLogics().accept(id, user)
+    except BadRequest as e:
+        return failed_response(message=e.message, status_code=400)
 
     return success_response(
         data=publication,
         status_code=200)
+
+
+@publications_blueprint.route('/social/publications/<id>', methods=['DELETE'])
+@authenticate
+def delete(user, id):
+    PublicationLogics().delete(id, user)
+
+    return success_response(status_code=204)

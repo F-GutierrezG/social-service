@@ -12,6 +12,7 @@ class Publication(db.Model):
         PENDING = 'PENDING'
         ACCEPTED = 'ACCEPTED'
         REJECTED = 'REJECTED'
+        DELETED = 'DELETED'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     company_id = db.Column(db.Integer, nullable=False)
