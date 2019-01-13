@@ -16,7 +16,8 @@ class PublicationSerializer:
             'updated_by': publication.updated_by,
             'status': publication.status.value,
             'social_networks': PublicationSerializer.__social_networks(
-                publication)
+                publication),
+            'link': publication.link
         }
 
     @staticmethod

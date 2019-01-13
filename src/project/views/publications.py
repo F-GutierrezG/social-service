@@ -81,3 +81,44 @@ def delete(user, id):
         return failed_response(message="bad status", status_code=400)
 
     return success_response(status_code=204)
+
+
+@publications_blueprint.route('/social/publications/<id>', methods=['PUT'])
+@authenticate
+def update(user, id):
+    publication_data = {}
+    publication_data['date'] = request.form.get('date')
+    publication_data['time'] = request.form.get('time')
+    publication_data['title'] = request.form.get('title')
+    publication_data['social_networks'] = request.form.get(
+        'social_networks').split(',')
+    publication_data['message'] = request.form.get('message')
+    publication_data['additional'] = request.form.get('additional')
+    publication_data['image'] = request.files.get('image')
+
+    try:
+        publication = PublicationLogics().update(id, publication_data, user)
+    except NotFound:
+        return failed_response(message="not found", status_code=404)
+    except BadRequest as e:
+        return failed_response(message=e.message, status_code=400)
+
+    return success_response(
+        data=publication,
+        status_code=200)
+
+
+@publications_blueprint.route(
+    '/social/publications/<id>/link', methods=['PUT'])
+@authenticate
+def link(user, id):
+    data = request.get_json()
+
+    try:
+        publication = PublicationLogics().link(id, data, user)
+    except NotFound:
+        return failed_response(message="not found", status_code=404)
+    except BadRequest as e:
+        return failed_response(message=e.message, status_code=400)
+
+    return success_response(data=publication, status_code=200)

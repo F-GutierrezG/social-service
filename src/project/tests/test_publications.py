@@ -419,5 +419,330 @@ class TestDeletePublication(BaseTestCase):
             self.assertEqual(Publication.query.count(), 1)
 
 
+class TestEditPublication(BaseTestCase):
+    """Test for edit publication"""
+
+    def test_edit_publication(self):
+        """Edit publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.PENDING)
+
+        current_time = datetime.datetime.today() + datetime.timedelta(
+            days=1, hours=1)
+
+        date = '{}-{}-{}'.format(
+            current_time.year,
+            '{:02d}'.format(current_time.month),
+            '{:02d}'.format(current_time.day))
+        time = '{}:{}'.format(
+            '{:02d}'.format(current_time.hour),
+            '{:02d}'.format(current_time.minute))
+
+        data = {
+            'date': date,
+            'time': time,
+            'title': random_string(),
+            'message': random_string(256),
+            'image': (io.BytesIO(b"fkdlasjl"), 'test.jpg'),
+            'social_networks': random_string(),
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}'.format(publication.id),
+                data=data,
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='multipart/form-data'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_data['date'], data['date'])
+            self.assertEqual(response_data['time'], data['time'])
+            self.assertEqual(response_data['title'], data['title'])
+            self.assertEqual(response_data['message'], data['message'])
+            self.assertEqual(len(response_data['social_networks']), 1)
+            self.assertEqual(
+                response_data['social_networks'][0], data['social_networks'])
+
+    def test_edit_accepted_publication(self):
+        """Edit publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.ACCEPTED)
+
+        current_time = datetime.datetime.today() + datetime.timedelta(
+            days=1, hours=1)
+
+        date = '{}-{}-{}'.format(
+            current_time.year,
+            '{:02d}'.format(current_time.month),
+            '{:02d}'.format(current_time.day))
+        time = '{}:{}'.format(
+            '{:02d}'.format(current_time.hour),
+            '{:02d}'.format(current_time.minute))
+
+        data = {
+            'date': date,
+            'time': time,
+            'title': random_string(),
+            'message': random_string(256),
+            'image': (io.BytesIO(b"fkdlasjl"), 'test.jpg'),
+            'social_networks': random_string(),
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}'.format(publication.id),
+                data=data,
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='multipart/form-data'
+            )
+            self.assertEqual(response.status_code, 400)
+
+    def test_edit_rejected_publication(self):
+        """Edit publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.REJECTED)
+
+        current_time = datetime.datetime.today() + datetime.timedelta(
+            days=1, hours=1)
+
+        date = '{}-{}-{}'.format(
+            current_time.year,
+            '{:02d}'.format(current_time.month),
+            '{:02d}'.format(current_time.day))
+        time = '{}:{}'.format(
+            '{:02d}'.format(current_time.hour),
+            '{:02d}'.format(current_time.minute))
+
+        data = {
+            'date': date,
+            'time': time,
+            'title': random_string(),
+            'message': random_string(256),
+            'image': (io.BytesIO(b"fkdlasjl"), 'test.jpg'),
+            'social_networks': random_string(),
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}'.format(publication.id),
+                data=data,
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='multipart/form-data'
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_edit_deleted_publication(self):
+        """Edit publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.DELETED)
+
+        current_time = datetime.datetime.today() + datetime.timedelta(
+            days=1, hours=1)
+
+        date = '{}-{}-{}'.format(
+            current_time.year,
+            '{:02d}'.format(current_time.month),
+            '{:02d}'.format(current_time.day))
+        time = '{}:{}'.format(
+            '{:02d}'.format(current_time.hour),
+            '{:02d}'.format(current_time.minute))
+
+        data = {
+            'date': date,
+            'time': time,
+            'title': random_string(),
+            'message': random_string(256),
+            'image': (io.BytesIO(b"fkdlasjl"), 'test.jpg'),
+            'social_networks': random_string(),
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}'.format(publication.id),
+                data=data,
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='multipart/form-data'
+            )
+            self.assertEqual(response.status_code, 404)
+
+    def test_edit_rejected_publication_becomes_pending(self):
+        """Edit publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.REJECTED)
+
+        current_time = datetime.datetime.today() + datetime.timedelta(
+            days=1, hours=1)
+
+        date = '{}-{}-{}'.format(
+            current_time.year,
+            '{:02d}'.format(current_time.month),
+            '{:02d}'.format(current_time.day))
+        time = '{}:{}'.format(
+            '{:02d}'.format(current_time.hour),
+            '{:02d}'.format(current_time.minute))
+
+        data = {
+            'date': date,
+            'time': time,
+            'title': random_string(),
+            'message': random_string(256),
+            'image': (io.BytesIO(b"fkdlasjl"), 'test.jpg'),
+            'social_networks': random_string(),
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}'.format(publication.id),
+                data=data,
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='multipart/form-data'
+            )
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_data['status'], 'PENDING')
+
+
+class TestLinkPublication(BaseTestCase):
+    """Test for link publication"""
+
+    def test_link_publication(self):
+        """Link publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.ACCEPTED)
+
+        data = {
+            "link": random_string()
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}/link'.format(publication.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+
+            response_data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_data['link'], data['link'])
+
+    def test_link_rejected_publication(self):
+        """Link publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.REJECTED)
+
+        data = {
+            "link": random_string()
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}/link'.format(publication.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 400)
+
+    def test_link_deleted_publication(self):
+        """Link publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.DELETED)
+
+        data = {
+            "link": random_string()
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}/link'.format(publication.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 404)
+
+    def test_link_pending_publication(self):
+        """Link publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.PENDING)
+
+        data = {
+            "link": random_string()
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}/link'.format(publication.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 400)
+
+    def test_link_accepted_publication(self):
+        """Link publication behaves correctly"""
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.ACCEPTED)
+
+        data = {
+            "link": random_string()
+        }
+
+        with self.client:
+            response = self.client.put(
+                '/social/publications/{}/link'.format(publication.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+
 if __name__ == '__main__':
     unittest.main()

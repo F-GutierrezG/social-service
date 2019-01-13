@@ -16,6 +16,9 @@ class BadRequest(Exception):
 
 
 class PublicationLogics:
+    def get(self, id):
+        return Publication.query.filter_by(id=id).first()
+
     def list(self, user):
         if user.admin is True:
             publications = Publication.query.filter(
@@ -91,6 +94,49 @@ class PublicationLogics:
         db.session.add(publication)
         db.session.commit()
 
+    def update(self, id, data, user):
+        mapped_data = self.__map_update_data(data)
+        mapped_data['updated_by'] = user.id
+        mapped_data['status'] = Publication.Status.PENDING
+
+        publication = Publication.query.filter(
+            Publication.id == id,
+            Publication.status != Publication.Status.DELETED).first()
+
+        if publication is None:
+            raise NotFound()
+
+        if publication.status == Publication.Status.ACCEPTED:
+            raise BadRequest("can't edit")
+
+        Publication.query.filter_by(id=id).update(mapped_data)
+        self.__remove_publication_social_networks(publication)
+        self.__add_publication_social_networks(publication, data)
+
+        db.session.commit()
+
+        return PublicationSerializer.to_dict(publication)
+
+    def link(self, id, data, user):
+        if 'link' not in data:
+            raise BadRequest(message='bad request')
+
+        publication = Publication.query.filter(
+            Publication.id == id,
+            Publication.status != Publication.Status.DELETED).first()
+
+        if not publication:
+            raise NotFound()
+
+        if publication.status is not Publication.Status.ACCEPTED:
+            raise BadRequest(message='not accepted')
+
+        publication.link = data['link']
+
+        db.session.commit()
+
+        return PublicationSerializer.to_dict(publication)
+
     def __get_user_companies_ids(self):
         companies_service = CompaniesServiceFactory.get_instance()
         user_companies = companies_service.get_user_companies()
@@ -113,6 +159,17 @@ class PublicationLogics:
 
         return mapped_data
 
+    def __map_update_data(self, data):
+        mapped_data = {}
+
+        mapped_data['title'] = data['title']
+        mapped_data['datetime'] = "{} {}".format(data['date'], data['time'])
+        mapped_data['message'] = data['message']
+        if 'image' in data and data['image'] is not None:
+            mapped_data['image_url'] = self.__upload_image(data['image'])
+
+        return mapped_data
+
     def __upload_image(self, image):
         return S3Uploader().upload(image)
 
@@ -120,3 +177,7 @@ class PublicationLogics:
         for social_network in data['social_networks']:
             publication.social_networks.append(PublicationSocialNetwork(
                 social_network=social_network))
+
+    def __remove_publication_social_networks(self, publication):
+        PublicationSocialNetwork.query.filter_by(
+            publication_id=publication.id).delete()

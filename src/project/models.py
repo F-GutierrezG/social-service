@@ -32,6 +32,7 @@ class Publication(db.Model):
         default=Status.PENDING,
         nullable=False)
     reject_reason = db.Column(db.Text, nullable=True)
+    link = db.Column(db.Text, nullable=True)
 
     social_networks = db.relationship(
         "PublicationSocialNetwork", backref='publication')
