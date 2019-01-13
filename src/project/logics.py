@@ -6,6 +6,10 @@ from project.serializers import PublicationSerializer
 from project.uploaders import S3Uploader
 
 
+class NotFound(Exception):
+    pass
+
+
 class BadRequest(Exception):
     def __init__(self, message):
         self.message = message
@@ -39,7 +43,10 @@ class PublicationLogics:
         publication = Publication.query.filter_by(id=id).first()
 
         if publication.status == Publication.Status.REJECTED:
-            raise BadRequest("Already rejected")
+            raise BadRequest("already rejected")
+
+        if publication.status == Publication.Status.ACCEPTED:
+            raise BadRequest("accepted")
 
         publication.status = Publication.Status.REJECTED
         publication.reject_reason = message
@@ -54,7 +61,10 @@ class PublicationLogics:
         publication = Publication.query.filter_by(id=id).first()
 
         if publication.status == Publication.Status.ACCEPTED:
-            raise BadRequest("Already rejected")
+            raise BadRequest("already rejected")
+
+        if publication.status == Publication.Status.REJECTED:
+            raise BadRequest("rejected")
 
         publication.status = Publication.Status.ACCEPTED
         publication.updated_by = user.id
@@ -65,7 +75,15 @@ class PublicationLogics:
         return PublicationSerializer.to_dict(publication)
 
     def delete(self, id, updated_by):
-        publication = Publication.query.filter_by(id=id).first()
+        publication = Publication.query.filter(
+            Publication.id == id,
+            Publication.status != Publication.Status.DELETED).first()
+
+        if not publication:
+            raise NotFound()
+
+        if publication.status != Publication.Status.PENDING:
+            raise BadRequest(message="")
 
         publication.status = Publication.Status.DELETED
         publication.updated_by = updated_by.id

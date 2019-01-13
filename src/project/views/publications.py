@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 
 from auth.decorators import authenticate
-from project.logics import PublicationLogics, BadRequest
+from project.logics import PublicationLogics, BadRequest, NotFound
 from project.views.utils import success_response, failed_response
 
 
@@ -73,6 +73,11 @@ def accept(user, id):
 @publications_blueprint.route('/social/publications/<id>', methods=['DELETE'])
 @authenticate
 def delete(user, id):
-    PublicationLogics().delete(id, user)
+    try:
+        PublicationLogics().delete(id, user)
+    except NotFound:
+        return failed_response(message="not found", status_code=404)
+    except BadRequest:
+        return failed_response(message="bad status", status_code=400)
 
     return success_response(status_code=204)
