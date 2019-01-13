@@ -36,6 +36,7 @@ class Publication(db.Model):
 
     social_networks = db.relationship(
         "PublicationSocialNetwork", backref='publication')
+    tags = db.relationship("PublicationTag", backref='publication')
 
 
 class PublicationSocialNetwork(db.Model):
@@ -44,6 +45,18 @@ class PublicationSocialNetwork(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     social_network = db.Column(db.String(128), nullable=False)
+    publication_id = db.Column(
+        db.Integer,
+        db.ForeignKey(Publication.id),
+        nullable=False)
+
+
+class PublicationTag(db.Model):
+    __tablename__ = 'publication_tags'
+    __table_args__ = {'schema': 'social'}
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(128), nullable=False)
     publication_id = db.Column(
         db.Integer,
         db.ForeignKey(Publication.id),

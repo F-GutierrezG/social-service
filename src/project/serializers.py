@@ -17,7 +17,8 @@ class PublicationSerializer:
             'status': publication.status.value,
             'social_networks': PublicationSerializer.__social_networks(
                 publication),
-            'link': publication.link
+            'link': publication.link,
+            'tags': PublicationSerializer.__tags(publication)
         }
 
     @staticmethod
@@ -38,3 +39,12 @@ class PublicationSerializer:
             social_networks.append(network.social_network)
 
         return social_networks
+
+    @staticmethod
+    def __tags(publication):
+        tags = []
+
+        for tag in publication.tags:
+            tags.append(tag.name)
+
+        return tags

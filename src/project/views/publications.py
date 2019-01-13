@@ -22,6 +22,7 @@ def create(user):
     publication_data['additional'] = request.form.get('additional')
     publication_data['image'] = request.files.get('image')
     publication_data['created_by'] = user.id
+    publication_data['tags'] = request.form.get('tags')
 
     publication = PublicationLogics().create(publication_data)
 

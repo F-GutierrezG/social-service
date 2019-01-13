@@ -1,7 +1,8 @@
 from companies_service.factories import CompaniesServiceFactory
 
 from project import db
-from project.models import Publication, PublicationSocialNetwork
+from project.models import (
+    Publication, PublicationSocialNetwork, PublicationTag)
 from project.serializers import PublicationSerializer
 from project.uploaders import S3Uploader
 
@@ -35,7 +36,8 @@ class PublicationLogics:
         mapped_data = self.__map_data(data)
 
         publication = Publication(**mapped_data)
-        self.__add_publication_social_networks(publication, data)
+        publication.social_networks = self.__create_social_networks(data)
+        publication.tags = self.__create_tags(data)
 
         db.session.add(publication)
         db.session.commit()
@@ -181,3 +183,23 @@ class PublicationLogics:
     def __remove_publication_social_networks(self, publication):
         PublicationSocialNetwork.query.filter_by(
             publication_id=publication.id).delete()
+
+    def __create_tags(self, data):
+        created_tags = []
+
+        if 'tags' not in data or data['tags'] is None:
+            return created_tags
+
+        for tag in data['tags'].split(","):
+            created_tags.append(PublicationTag(name=tag))
+
+        return created_tags
+
+    def __create_social_networks(self, data):
+        created_social_networks = []
+
+        for network in data['social_networks']:
+            created_social_networks.append(PublicationSocialNetwork(
+                social_network=network))
+
+        return created_social_networks
