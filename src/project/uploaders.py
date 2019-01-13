@@ -10,7 +10,10 @@ class S3Uploader:
         key = 'images/{}'.format(self.__generate_name(file))
 
         s3 = boto3.resource('s3')
-        s3.Bucket(bucket_name).put_object(Key=key, Body=file)
+        s3.Bucket(bucket_name).put_object(
+            Key=key,
+            Body=file,
+            ContentType=file.mimetype)
 
         return "https://s3.amazonaws.com/{}/{}".format(
             bucket_name, key)
