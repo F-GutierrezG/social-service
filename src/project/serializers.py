@@ -23,28 +23,17 @@ class PublicationSerializer:
 
     @staticmethod
     def to_array(publications):
-        publications_list = []
-
-        for publication in publications:
-            publications_list.append(
-                PublicationSerializer.to_dict(publication))
-
-        return publications_list
+        return list(
+            map(
+                lambda publication: PublicationSerializer.to_dict(publication),
+                publications))
 
     @staticmethod
     def __social_networks(publication):
-        social_networks = []
-
-        for network in publication.social_networks:
-            social_networks.append(network.social_network)
-
-        return social_networks
+        return list(map(
+            lambda network: network.social_network,
+            publication.social_networks))
 
     @staticmethod
     def __tags(publication):
-        tags = []
-
-        for tag in publication.tags:
-            tags.append(tag.name)
-
-        return tags
+        return list(map(lambda tag: tag.name, publication.tags))

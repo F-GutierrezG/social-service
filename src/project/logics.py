@@ -112,9 +112,14 @@ class PublicationLogics:
             raise BadRequest("can't edit")
 
         Publication.query.filter_by(id=id).update(mapped_data)
-        self.__remove_publication_social_networks(publication)
-        self.__add_publication_social_networks(publication, data)
 
+        self.__remove_publication_tags(publication)
+        self.__remove_publication_social_networks(publication)
+
+        publication.social_networks = self.__create_social_networks(data)
+        publication.tags = self.__create_tags(data)
+
+        db.session.add(publication)
         db.session.commit()
 
         return PublicationSerializer.to_dict(publication)
@@ -175,31 +180,23 @@ class PublicationLogics:
     def __upload_image(self, image):
         return S3Uploader().upload(image)
 
-    def __add_publication_social_networks(self, publication, data):
-        for social_network in data['social_networks']:
-            publication.social_networks.append(PublicationSocialNetwork(
-                social_network=social_network))
-
     def __remove_publication_social_networks(self, publication):
         PublicationSocialNetwork.query.filter_by(
             publication_id=publication.id).delete()
 
+    def __remove_publication_tags(self, publication):
+        PublicationTag.query.filter_by(
+            publication_id=publication.id).delete()
+
     def __create_tags(self, data):
-        created_tags = []
-
         if 'tags' not in data or data['tags'] is None:
-            return created_tags
+            return []
 
-        for tag in data['tags'].split(","):
-            created_tags.append(PublicationTag(name=tag))
-
-        return created_tags
+        return list(map(
+            lambda tag: PublicationTag(name=tag),
+            data['tags'].split(",")))
 
     def __create_social_networks(self, data):
-        created_social_networks = []
-
-        for network in data['social_networks']:
-            created_social_networks.append(PublicationSocialNetwork(
-                social_network=network))
-
-        return created_social_networks
+        return list(map(
+            lambda network: PublicationSocialNetwork(
+                social_network=network), data['social_networks']))

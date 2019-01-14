@@ -96,6 +96,7 @@ def update(user, id):
     publication_data['message'] = request.form.get('message')
     publication_data['additional'] = request.form.get('additional')
     publication_data['image'] = request.files.get('image')
+    publication_data['tags'] = request.form.get('tags')
 
     try:
         publication = PublicationLogics().update(id, publication_data, user)
