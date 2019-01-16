@@ -11,8 +11,10 @@ class BaseConfig:
     SQLALCHEMY_ECHO = False
     USERS_SERVICE_MOCK = False
     COMPANIES_SERVICE_MOCK = False
+    NOTIFICATIONS_SERVICE_MOCK = False
     AUTH_SERVICE_URL = os.environ.get('AUTH_SERVICE_URL')
     USERS_SERVICE_URL = os.environ.get('USERS_SERVICE_URL')
+    NOTIFICATIONS_SERVICE_URL = os.environ.get('NOTIFICATIONS_SERVICE_URL')
     AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME')
 
 
@@ -23,6 +25,7 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_ECHO = True
     USERS_SERVICE_MOCK = False
     COMPANIES_SERVICE_MOCK = False
+    NOTIFICATIONS_SERVICE_MOCK = False
 
 
 class TestingConfig(BaseConfig):
@@ -33,12 +36,14 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_ECHO = False
     USERS_SERVICE_MOCK = True
     COMPANIES_SERVICE_MOCK = True
+    NOTIFICATIONS_SERVICE_MOCK = True
 
 
 class StagingConfig(BaseConfig):
     """ Staging configuration """
     USERS_SERVICE_MOCK = False
     COMPANIES_SERVICE_MOCK = False
+    NOTIFICATIONS_SERVICE_MOCK = False
 
 
 class ProductionConfig(BaseConfig):
@@ -46,3 +51,4 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
     USERS_SERVICE_MOCK = False
     COMPANIES_SERVICE_MOCK = False
+    NOTIFICATIONS_SERVICE_MOCK = False

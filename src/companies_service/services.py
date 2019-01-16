@@ -3,8 +3,6 @@ import requests
 
 from flask import request, current_app
 
-from companies_service.models import Company
-
 
 class CompaniesService:
     def get_user_companies(self):

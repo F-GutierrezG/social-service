@@ -22,11 +22,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=qbR8J2Tz53sfLpC48gPxuY8JCg2gSTGUJ5PNF3+X
       - USERS_SERVICE_URL=http://users:5000/users
       - AUTH_SERVICE_URL=http://users:5000/auth
-      - FACEBOOK_OAUTH_URL=https://www.facebook.com/v3.2/dialog/oauth
-      - FACEBOOK_CLIENT_ID=2207909899468654
-      - FACEBOOK_CLIENT_SECRET=0bd8e7bfd8aa8f0a7824e3aeda19961c
-      - FACEBOOK_REDIRECT_URI=https://stage.onelike.gusisoft.cl/social/facebook/access_token
-      - FACEBOOK_ACCESS_TOKEN_URL=https://graph.facebook.com/v3.2/oauth/access_token
+      - NOTIFICATIONS_SERVICE_URL=http://notifications:5000/notifications
     restart: always
     depends_on:
       - social-db
