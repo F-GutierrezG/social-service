@@ -14,6 +14,20 @@ class CompaniesService:
         data = json.loads(response.text)
         return response, data
 
+    def get_company_users(self, company_id):
+        url = '{}/{}/users'.format(
+            current_app.config['COMPANIES_SERVICE_URL'],
+            company_id)
+        bearer = request.headers.get('Authorization')
+        headers = {'Authorization': bearer}
+        response = requests.get(url, headers=headers)
+        data = json.loads(response.text)
+        return response, data
+
+
+class Response:
+    status_code = 200
+
 
 class CompaniesServiceMock:
     instance = None
@@ -25,6 +39,7 @@ class CompaniesServiceMock:
         self.companies = []
         self.users_companies = {}
         self.user = None
+        self.users = []
         return CompaniesServiceMock.instance
 
     def set_user(self, user):
@@ -49,3 +64,12 @@ class CompaniesServiceMock:
         return list(map(
                 lambda company: {'id': company['id']},
                 self.users_companies[self.user['id']]))
+
+    def set_users(self, users):
+        self.users = users
+
+    def get_company_users(self, company_id):
+        users = []
+        for user in self.users:
+            users.append(user)
+        return Response(), users

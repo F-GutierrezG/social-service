@@ -1,4 +1,5 @@
 from companies_service.factories import CompaniesServiceFactory
+from notifications_service.factories import NotificationsServiceFactory
 
 from project import db
 from project.models import (
@@ -32,7 +33,7 @@ class PublicationLogics:
 
         return PublicationSerializer.to_array(publications)
 
-    def create(self, data):
+    def create(self, data, user):
         mapped_data = self.__map_data(data)
 
         publication = Publication(**mapped_data)
@@ -41,6 +42,8 @@ class PublicationLogics:
 
         db.session.add(publication)
         db.session.commit()
+
+        self.__notify_publication(publication, user)
 
         return PublicationSerializer.to_dict(publication)
 
@@ -60,6 +63,8 @@ class PublicationLogics:
         db.session.add(publication)
         db.session.commit()
 
+        self.__notify_publication(publication, user)
+
         return PublicationSerializer.to_dict(publication)
 
     def accept(self, id, user):
@@ -76,6 +81,8 @@ class PublicationLogics:
 
         db.session.add(publication)
         db.session.commit()
+
+        self.__notify_publication(publication, user)
 
         return PublicationSerializer.to_dict(publication)
 
@@ -122,6 +129,8 @@ class PublicationLogics:
         db.session.add(publication)
         db.session.commit()
 
+        self.__notify_publication(publication, user)
+
         return PublicationSerializer.to_dict(publication)
 
     def link(self, id, data, user):
@@ -144,6 +153,26 @@ class PublicationLogics:
 
         return PublicationSerializer.to_dict(publication)
 
+    def __notify_publication(self, publication, user):
+        service = NotificationsServiceFactory.get_instance()
+        event = "PUBLICATION"
+        hashes = self.__get_notification_hashes(publication, user)
+        message = PublicationSerializer.to_dict(publication)
+        service.send(event, hashes, message)
+
+    def __get_notification_hashes(self, publication, user):
+        companies_service = CompaniesServiceFactory.get_instance()
+        _, company_users = companies_service.get_company_users(
+            publication.company_id)
+
+        hashes = []
+
+        for hash in self.__get_users_hashes(company_users):
+            if hash != user.hash:
+                hashes.append(hash)
+
+        return hashes
+
     def __get_user_companies_ids(self):
         companies_service = CompaniesServiceFactory.get_instance()
         user_companies = companies_service.get_user_companies()
@@ -152,6 +181,9 @@ class PublicationLogics:
 
     def __get_companies_ids(self, companies):
         return list(map(lambda company: company['id'], companies))
+
+    def __get_users_hashes(self, users):
+        return list(map(lambda user: user['hash'], users))
 
     def __map_data(self, data):
         mapped_data = {}

@@ -5,14 +5,20 @@ from flask import request, current_app
 
 
 class NotificationsService:
-    def send(self, data):
+    def send(self, event, hashes, message):
+        data = {
+            'event': event,
+            'hashes': hashes,
+            'message': message
+        }
+
         url = '{0}/send'.format(
             current_app.config['NOTIFICATIONS_SERVICE_URL'])
         bearer = request.headers.get('Authorization')
         headers = {'Authorization': bearer, 'Content-Type': 'application/json'}
         response = requests.post(
             url, headers=headers, data=json.dumps(data))
-        data = json.loads(response.text)
+        data = response.text
         return response, data
 
 
@@ -35,5 +41,5 @@ class NotificationsServiceMock:
             NotificationsServiceMock.instance = NotificationsServiceMock()
         return NotificationsServiceMock.instance
 
-    def send(self):
+    def send(self, event, hashes, message):
         Response(), {}

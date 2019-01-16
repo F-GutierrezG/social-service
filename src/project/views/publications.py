@@ -24,7 +24,7 @@ def create(user):
     publication_data['created_by'] = user.id
     publication_data['tags'] = request.form.get('tags')
 
-    publication = PublicationLogics().create(publication_data)
+    publication = PublicationLogics().create(publication_data, user)
 
     return success_response(
         data=publication,

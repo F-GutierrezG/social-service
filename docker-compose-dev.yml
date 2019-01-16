@@ -22,6 +22,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=qbR8J2Tz53sfLpC48gPxuY8JCg2gSTGUJ5PNF3+X
       - USERS_SERVICE_URL=http://users:5000/users
       - AUTH_SERVICE_URL=http://users:5000/auth
+      - COMPANIES_SERVICE_URL=http://companies:5000/companies
       - NOTIFICATIONS_SERVICE_URL=http://notifications:5000/notifications
     restart: always
     depends_on:
