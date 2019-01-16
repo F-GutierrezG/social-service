@@ -192,9 +192,13 @@ class PublicationLogics:
         if 'tags' not in data or data['tags'] is None:
             return []
 
-        return list(map(
-            lambda tag: PublicationTag(name=tag),
-            data['tags'].split(",")))
+        tags = []
+
+        for tag in data['tags'].split(","):
+            if tag.strip() != "":
+                tags.append(PublicationTag(name=tag))
+
+        return tags
 
     def __create_social_networks(self, data):
         return list(map(
