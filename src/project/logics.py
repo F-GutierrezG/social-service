@@ -168,8 +168,8 @@ class PublicationLogics:
         hashes = []
 
         for hash in self.__get_users_hashes(company_users):
-            if hash != user.hash:
-                hashes.append(hash)
+            # if hash != user.hash:
+            hashes.append(hash)
 
         return hashes
 
