@@ -6,7 +6,7 @@ from flask import request, current_app
 
 class CompaniesService:
     def get_user_companies(self):
-        url = '{0}/companies'.format(
+        url = '{0}'.format(
             current_app.config['COMPANIES_SERVICE_URL'])
         bearer = request.headers.get('Authorization')
         headers = {'Authorization': bearer}

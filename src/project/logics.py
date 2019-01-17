@@ -175,7 +175,7 @@ class PublicationLogics:
 
     def __get_user_companies_ids(self):
         companies_service = CompaniesServiceFactory.get_instance()
-        user_companies = companies_service.get_user_companies()
+        _, user_companies = companies_service.get_user_companies()
 
         return self.__get_companies_ids(user_companies)
 
