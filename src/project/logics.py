@@ -1,3 +1,4 @@
+import time
 import datetime
 from companies_service.factories import CompaniesServiceFactory
 from notifications_service.factories import NotificationsServiceFactory
@@ -171,6 +172,57 @@ class PublicationLogics:
 
         raise BadRequest(message='invalid duration')
 
+    def __clone_until(self, publication, data, user):
+        publications = []
+
+        next_datetime = self.__calculate_next_datetime(
+            publication.datetime, data)
+
+        while(next_datetime):
+            publications.append(
+                self.__create_next_publication(
+                    publication, next_datetime, user))
+
+            if next_datetime > self.__convert_to_datetime(data["until"]):
+                return publications
+
+            next_datetime = self.__calculate_next_datetime(next_datetime, data)
+
+    def __convert_to_datetime(self, date_time):
+        return datetime.datetime.strptime(date_time, "%Y-%m-%d")
+
+    def __calculate_next_datetime(self, actual_date, data):
+        periodicity = data['periodicity']
+
+        if periodicity == "DAILY":
+            return self.__get_next_daily_date(actual_date)
+        if periodicity == "WEEKLY":
+            return self.__get_next_weekly_date(actual_date)
+        if periodicity == "MONTHLY":
+            return self.__get_next_monthly_date(actual_date)
+
+        raise BadRequest(message="invalid periodicity")
+
+    def __create_next_publication(self, publication, next_datetime, user):
+        new_publication = Publication(
+            company_id=publication.company_id,
+            datetime=next_datetime,
+            title=publication.title,
+            message=publication.message,
+            additional=publication.additional,
+            image_url=publication.image_url,
+            status=publication.status,
+            social_networks=self.__clone_social_network(publication),
+            tags=self.__clone_tags(publication),
+            created_by=user.id,
+            parent_id=publication.id
+        )
+
+        db.session.add(new_publication)
+        db.session.commit()
+
+        return new_publication
+
     def __clone_repetitions(self, publication, data, user):
         publications = []
 
@@ -213,10 +265,10 @@ class PublicationLogics:
 
         raise BadRequest(message="invalid periodicity")
 
-    def __get_next_daily_date(self, date_time, repetition):
+    def __get_next_daily_date(self, date_time, repetition=0):
         return date_time + datetime.timedelta(days=(repetition + 1))
 
-    def __get_next_weekly_date(self, date_time, repetition):
+    def __get_next_weekly_date(self, date_time, repetition=0):
         return date_time + datetime.timedelta(days=(7 * (repetition + 1)))
 
     def __clone_social_network(self, publication):
