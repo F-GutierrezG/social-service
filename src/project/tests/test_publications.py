@@ -782,5 +782,97 @@ class TestLinkPublication(BaseTestCase):
             self.assertEqual(response.status_code, 200)
 
 
+class TestClonePublication(BaseTestCase):
+    """Test for clone publication"""
+
+    def test_clone_daily_repetitions_publication(self):
+        """Clone publication behaves correctly"""
+
+        def calculate_date(date, i):
+            calculated = date + datetime.timedelta(days=(i + 1))
+
+            return '{:02d}-{:02d}-{:02d}'.format(
+                calculated.year,
+                calculated.month,
+                calculated.day)
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.ACCEPTED)
+
+        data = {
+            'duration': "REPETITIONS",
+            'parent_id': 1,
+            'periodicity': "DAILY",
+            'repetitions': str(random.randint(2, 5)),
+            'until': ""
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/social/publications/{}/clone'.format(publication.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+
+            publications = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(len(publications), int(data['repetitions']))
+
+            publication_datetime = publication.datetime
+
+            for i in range(0, int(data['repetitions'])):
+                self.assertEqual(
+                    publications[i]['date'],
+                    calculate_date(publication_datetime, i))
+
+    def test_clone_weekly_repetitions_publication(self):
+        """Clone publication behaves correctly"""
+
+        def calculate_date(date, i):
+            calculated = date + datetime.timedelta(days=(7 * (i + 1)))
+
+            return '{:02d}-{:02d}-{:02d}'.format(
+                calculated.year,
+                calculated.month,
+                calculated.day)
+
+        admin = add_admin()
+        auth = AuthenticatorFactory.get_instance().clear()
+        auth.set_user(admin)
+
+        publication = add_publication(status=Publication.Status.ACCEPTED)
+
+        data = {
+            'duration': "REPETITIONS",
+            'parent_id': 1,
+            'periodicity': "WEEKLY",
+            'repetitions': str(random.randint(2, 5)),
+            'until': ""
+        }
+
+        with self.client:
+            response = self.client.post(
+                '/social/publications/{}/clone'.format(publication.id),
+                data=json.dumps(data),
+                headers={'Authorization': 'Bearer {}'.format(random_string())},
+                content_type='application/json'
+            )
+
+            publications = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 201)
+            self.assertEqual(len(publications), int(data['repetitions']))
+
+            publication_datetime = publication.datetime
+
+            for i in range(0, int(data['repetitions'])):
+                self.assertEqual(
+                    publications[i]['date'],
+                    calculate_date(publication_datetime, i))
+
+
 if __name__ == '__main__':
     unittest.main()

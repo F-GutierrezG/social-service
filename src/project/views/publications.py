@@ -124,3 +124,14 @@ def link(user, id):
         return failed_response(message=e.message, status_code=400)
 
     return success_response(data=publication, status_code=200)
+
+
+@publications_blueprint.route(
+    '/social/publications/<id>/clone', methods=['POST'])
+@authenticate
+def clone(user, id):
+    data = request.get_json()
+
+    publications = PublicationLogics().clone(id, data, user)
+
+    return success_response(data=publications, status_code=201)

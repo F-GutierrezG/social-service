@@ -1,3 +1,4 @@
+import datetime
 from companies_service.factories import CompaniesServiceFactory
 from notifications_service.factories import NotificationsServiceFactory
 
@@ -152,6 +153,82 @@ class PublicationLogics:
         db.session.commit()
 
         return PublicationSerializer.to_dict(publication)
+
+    def clone(self, id, data, user):
+        publication = Publication.query.filter(
+            Publication.id == id,
+            Publication.status == Publication.Status.ACCEPTED).first()
+
+        if not publication:
+            raise NotFound()
+
+        if data['duration'] == "REPETITIONS":
+            return PublicationSerializer.to_array(
+                self.__clone_repetitions(publication, data, user))
+        if data['duration'] == "UNTIL":
+            return PublicationSerializer.to_array(
+                self.__clone_until(publication, data, user))
+
+        raise BadRequest(message='invalid duration')
+
+    def __clone_repetitions(self, publication, data, user):
+        publications = []
+
+        for repetition in range(0, int(data['repetitions'])):
+            publications.append(
+                self.__clone_repetition(publication, data, repetition, user))
+
+        return publications
+
+    def __clone_repetition(self, publication, data, repetition, user):
+        new_publication = Publication(
+            company_id=publication.company_id,
+            datetime=self.__get_clone_date(
+                publication.datetime, data, int(repetition)),
+            title=publication.title,
+            message=publication.message,
+            additional=publication.additional,
+            image_url=publication.image_url,
+            status=publication.status,
+            social_networks=self.__clone_social_network(publication),
+            tags=self.__clone_tags(publication),
+            created_by=user.id,
+            parent_id=publication.id
+        )
+
+        db.session.add(new_publication)
+        db.session.commit()
+
+        return new_publication
+
+    def __get_clone_date(self, datetime, data, repetition):
+        periodicity = data['periodicity']
+
+        if periodicity == "DAILY":
+            return self.__get_next_daily_date(datetime, repetition)
+        if periodicity == "WEEKLY":
+            return self.__get_next_weekly_date(datetime, repetition)
+        if periodicity == "MONTHLY":
+            return self.__get_next_monthly_date(datetime, repetition)
+
+        raise BadRequest(message="invalid periodicity")
+
+    def __get_next_daily_date(self, date_time, repetition):
+        return date_time + datetime.timedelta(days=(repetition + 1))
+
+    def __get_next_weekly_date(self, date_time, repetition):
+        return date_time + datetime.timedelta(days=(7 * (repetition + 1)))
+
+    def __clone_social_network(self, publication):
+        return list(
+            map(
+                lambda network: PublicationSocialNetwork(
+                    social_network=network.social_network),
+                publication.social_networks))
+
+    def __clone_tags(self, publication):
+        return list(
+            map(lambda tag: PublicationTag(name=tag.name), publication.tags))
 
     def __notify_publication(self, publication, user):
         service = NotificationsServiceFactory.get_instance()
