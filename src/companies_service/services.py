@@ -61,7 +61,7 @@ class CompaniesServiceMock:
         self.users_companies[user['id']].append(company)
 
     def get_user_companies(self):
-        return list(map(
+        return Response(), list(map(
                 lambda company: {'id': company['id']},
                 self.users_companies[self.user['id']]))
 
