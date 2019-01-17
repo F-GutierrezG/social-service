@@ -918,7 +918,7 @@ class TestClonePublication(BaseTestCase):
             self.assertEqual(response.status_code, 201)
             self.assertEqual(len(publications), repetitions)
 
-    def test_clone_daily_until_publication(self):
+    def test_clone_weekly_until_publication(self):
         """Clone publication behaves correctly"""
 
         def calculate_date(date, i):
