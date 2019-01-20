@@ -20,6 +20,12 @@ def add_publication(company_id=1, status=Publication.Status.PENDING):
     db.session.add(publication)
     db.session.commit()
 
+    companies_service = CompaniesServiceFactory.get_instance().clear()
+    companies_service.set_company({
+        'id': company_id,
+        'identifier': random_string(),
+        'name': random_string()})
+
     return publication
 
 
