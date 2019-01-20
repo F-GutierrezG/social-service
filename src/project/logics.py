@@ -34,6 +34,20 @@ class PublicationLogics:
 
         return PublicationSerializer.to_array(publications)
 
+    def list_by_company(self, company_id, user):
+        if user.admin is True:
+            publications = Publication.query.filter(
+                Publication.company_id == company_id,
+                Publication.status != Publication.Status.DELETED)
+        else:
+            companies_ids = self.__get_user_companies_ids()
+            publications = Publication.query.filter(
+                Publication.company_id.in_(companies_ids),
+                Publication.company_id == company_id,
+                Publication.status != Publication.Status.DELETED)
+
+        return PublicationSerializer.to_array(publications)
+
     def create(self, data, user):
         mapped_data = self.__map_data(data)
 

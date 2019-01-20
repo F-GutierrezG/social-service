@@ -4,6 +4,8 @@ class PublicationSerializer:
         return {
             'id': publication.id,
             'company_id': publication.company_id,
+            'company_identifier': publication.company['identifier'],
+            'company_name': publication.company['name'],
             'date': publication.datetime.strftime('%Y-%m-%d'),
             'time': publication.datetime.strftime('%H:%M'),
             'title': publication.title,

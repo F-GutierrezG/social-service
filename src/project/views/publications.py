@@ -12,7 +12,7 @@ publications_blueprint = Blueprint('publications', __name__)
 @authenticate
 def create(user):
     publication_data = {}
-    publication_data['company_id'] = 1
+    publication_data['company_id'] = request.form.get('company_id')
     publication_data['date'] = request.form.get('date')
     publication_data['time'] = request.form.get('time')
     publication_data['title'] = request.form.get('title')
@@ -35,6 +35,16 @@ def create(user):
 @authenticate
 def list(user):
     publications = PublicationLogics().list(user)
+
+    return success_response(
+        data=publications,
+        status_code=200)
+
+
+@publications_blueprint.route('/social/publications/<id>', methods=['GET'])
+@authenticate
+def list_by_company(user, id):
+    publications = PublicationLogics().list_by_company(id, user)
 
     return success_response(
         data=publications,

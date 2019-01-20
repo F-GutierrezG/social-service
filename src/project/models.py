@@ -1,5 +1,7 @@
 import enum
 
+from companies_service.factories import CompaniesServiceFactory
+
 from project import db
 from sqlalchemy.sql import func
 
@@ -38,6 +40,16 @@ class Publication(db.Model):
     social_networks = db.relationship(
         "PublicationSocialNetwork", backref='publication')
     tags = db.relationship("PublicationTag", backref='publication')
+
+    _company = None
+
+    @property
+    def company(self):
+        if self._company is None:
+            service = CompaniesServiceFactory.get_instance()
+            _, self._company = service.get_company(self.company_id)
+
+        return self._company
 
 
 class PublicationSocialNetwork(db.Model):
