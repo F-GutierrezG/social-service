@@ -39,3 +39,38 @@ class PublicationSerializer:
     @staticmethod
     def __tags(publication):
         return list(map(lambda tag: tag.name, publication.tags))
+
+
+class CategorySerializer:
+    @staticmethod
+    def to_dict(category):
+        return {
+            'id': category.id,
+            'name': category.name,
+            'subcategories': SubcategorySerializer.to_array(
+                category.subcategories)
+        }
+
+    @staticmethod
+    def to_array(categories):
+        return list(
+            map(
+                lambda category: CategorySerializer.to_dict(category),
+                categories))
+
+
+class SubcategorySerializer:
+    @staticmethod
+    def to_dict(subcategory):
+        return {
+            'id': subcategory.id,
+            'name': subcategory.name,
+            'company_id': subcategory.company_id
+        }
+
+    @staticmethod
+    def to_array(subcategories):
+        return list(
+            map(
+                lambda subcategory: SubcategorySerializer.to_dict(subcategory),
+                subcategories))

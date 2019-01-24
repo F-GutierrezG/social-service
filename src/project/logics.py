@@ -1,11 +1,15 @@
 import datetime
+
+from sqlalchemy import or_
+
 from companies_service.factories import CompaniesServiceFactory
 from notifications_service.factories import NotificationsServiceFactory
 
 from project import db
 from project.models import (
-    Publication, PublicationSocialNetwork, PublicationTag)
-from project.serializers import PublicationSerializer
+    Publication, PublicationSocialNetwork, PublicationTag, Category,
+    Subcategory)
+from project.serializers import PublicationSerializer, CategorySerializer
 from project.uploaders import S3Uploader
 
 
@@ -378,3 +382,15 @@ class PublicationLogics:
         return list(map(
             lambda network: PublicationSocialNetwork(
                 social_network=network), data['social_networks']))
+
+
+class CategoryLogics:
+    def list(self, id):
+        categories = db.session.query(Category).\
+            outerjoin(Category.subcategories).\
+            filter(or_(
+                Subcategory.company_id == id,
+                Subcategory.company_id.is_(None))).\
+            order_by(Category.id.asc())
+
+        return CategorySerializer.to_array(categories)

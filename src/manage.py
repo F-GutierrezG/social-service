@@ -32,7 +32,32 @@ def recreate_db():
 
 @cli.command()
 def seed_db():
-    pass
+    """Seeds the database."""
+    from project.models import Category, Subcategory
+
+    category1 = Category(name='Imagen Corporativa')
+    category2 = Category(name='Marketing')
+    category3 = Category(name='Comunidades')
+
+    category1.subcategories.append(
+        Subcategory(name='Cuidado por el medio ambiente'))
+    category1.subcategories.append(
+        Subcategory(name='Filosofía de servicio al cliente'))
+    category1.subcategories.append(
+        Subcategory(name='Actividades internas'))
+
+    category3.subcategories.append(
+        Subcategory(name='Encuestas'))
+    category3.subcategories.append(
+        Subcategory(name='Concursos'))
+    category3.subcategories.append(
+        Subcategory(name='Tips'))
+
+    db.session.add(category1)
+    db.session.add(category2)
+    db.session.add(category3)
+
+    db.session.commit()
 
 
 @cli.command()

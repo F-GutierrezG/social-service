@@ -74,3 +74,26 @@ class PublicationTag(db.Model):
         db.Integer,
         db.ForeignKey(Publication.id),
         nullable=False)
+
+
+class Category(db.Model):
+    __tablename__ = 'categories'
+    __table_args__ = {'schema': 'social'}
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(128), nullable=False)
+    subcategories = db.relationship(
+        "Subcategory", backref='category')
+
+
+class Subcategory(db.Model):
+    __tablename__ = 'subcategories'
+    __table_args__ = {'schema': 'social'}
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(512), nullable=False)
+    company_id = db.Column(db.Integer)
+    category_id = db.Column(
+        db.Integer,
+        db.ForeignKey(Category.id),
+        nullable=False)
