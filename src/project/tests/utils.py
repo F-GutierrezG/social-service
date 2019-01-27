@@ -6,7 +6,7 @@ from users_service.factories import UsersServiceFactory
 from companies_service.factories import CompaniesServiceFactory
 
 from project import db
-from project.models import Publication
+from project.models import Publication, Category
 
 
 def add_publication(company_id=1, status=Publication.Status.PENDING):
@@ -15,6 +15,8 @@ def add_publication(company_id=1, status=Publication.Status.PENDING):
         created_by=1,
         datetime=func.now(),
         title=random_string(),
+        category=random_string(),
+        subcategory=random_string(),
         status=status)
 
     db.session.add(publication)
@@ -44,6 +46,15 @@ def add_company():
     }
     companies_service.add_company(company)
     return company
+
+
+def add_category():
+    category = Category(name=random_string())
+
+    db.session.add(category)
+    db.session.commit()
+
+    return category
 
 
 def __add_user(admin=False):

@@ -243,7 +243,9 @@ class PublicationLogics:
             social_networks=self.__clone_social_network(publication),
             tags=self.__clone_tags(publication),
             created_by=user.id,
-            parent_id=publication.id
+            parent_id=publication.id,
+            category=publication.category,
+            subcategory=publication.subcategory
         )
 
         db.session.add(new_publication)
@@ -273,7 +275,9 @@ class PublicationLogics:
             social_networks=self.__clone_social_network(publication),
             tags=self.__clone_tags(publication),
             created_by=user.id,
-            parent_id=publication.id
+            parent_id=publication.id,
+            category=publication.category,
+            subcategory=publication.subcategory
         )
 
         db.session.add(new_publication)

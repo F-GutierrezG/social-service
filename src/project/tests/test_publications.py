@@ -8,7 +8,8 @@ from auth.factories import AuthenticatorFactory
 from companies_service.factories import CompaniesServiceFactory
 
 from project.tests.utils import (
-    random_string, add_publication, add_admin, add_user, add_company)
+    random_string, add_publication, add_admin, add_user, add_company,
+    add_category)
 
 from project.tests.base import BaseTestCase
 from project.models import Publication
@@ -124,6 +125,8 @@ class TestCreatePublication(BaseTestCase):
             current_time.year, current_time.month, current_time.day)
         time = '{}:{}'.format(current_time.hour, current_time.minute)
 
+        category = add_category()
+
         data = {
             'company_id': random.randint(0, 1000),
             'date': date,
@@ -132,6 +135,8 @@ class TestCreatePublication(BaseTestCase):
             'message': random_string(256),
             'image': (io.BytesIO(b"abcdef"), 'test.jpg'),
             'social_networks': random_string(),
+            'category': category.name,
+            'subcategory': random_string()
         }
 
         with self.client:
@@ -160,6 +165,8 @@ class TestCreatePublication(BaseTestCase):
             current_time.year, current_time.month, current_time.day)
         time = '{}:{}'.format(current_time.hour, current_time.minute)
 
+        category = add_category()
+
         data = {
             'company_id': random.randint(0, 1000),
             'date': date,
@@ -169,7 +176,9 @@ class TestCreatePublication(BaseTestCase):
             'image': (io.BytesIO(b"abcdef"), 'test.jpg'),
             'social_networks': random_string(),
             'tags': "{},{},{}".format(
-                random_string(), random_string(), random_string())
+                random_string(), random_string(), random_string()),
+            'category': category.name,
+            'subcategory': random_string()
         }
 
         with self.client:
@@ -467,6 +476,7 @@ class TestEditPublication(BaseTestCase):
         auth = AuthenticatorFactory.get_instance().clear()
         auth.set_user(admin)
 
+        category = add_category()
         publication = add_publication(status=Publication.Status.PENDING)
 
         current_time = datetime.datetime.today() + datetime.timedelta(
@@ -481,12 +491,15 @@ class TestEditPublication(BaseTestCase):
             '{:02d}'.format(current_time.minute))
 
         data = {
+            'company_id': random.randint(1, 10),
             'date': date,
             'time': time,
             'title': random_string(),
             'message': random_string(256),
             'image': (io.BytesIO(b"fkdlasjl"), 'test.jpg'),
             'social_networks': random_string(),
+            'category': category.name,
+            'subcategory': random_string()
         }
 
         with self.client:
@@ -551,6 +564,7 @@ class TestEditPublication(BaseTestCase):
         auth = AuthenticatorFactory.get_instance().clear()
         auth.set_user(admin)
 
+        category = add_category()
         publication = add_publication(status=Publication.Status.REJECTED)
 
         current_time = datetime.datetime.today() + datetime.timedelta(
@@ -565,12 +579,15 @@ class TestEditPublication(BaseTestCase):
             '{:02d}'.format(current_time.minute))
 
         data = {
+            'company_id': random.randint(1, 10),
             'date': date,
             'time': time,
             'title': random_string(),
             'message': random_string(256),
             'image': (io.BytesIO(b"fkdlasjl"), 'test.jpg'),
             'social_networks': random_string(),
+            'category': category.name,
+            'subcategory': random_string()
         }
 
         with self.client:
@@ -627,6 +644,7 @@ class TestEditPublication(BaseTestCase):
         auth = AuthenticatorFactory.get_instance().clear()
         auth.set_user(admin)
 
+        category = add_category()
         publication = add_publication(status=Publication.Status.REJECTED)
 
         current_time = datetime.datetime.today() + datetime.timedelta(
@@ -641,12 +659,15 @@ class TestEditPublication(BaseTestCase):
             '{:02d}'.format(current_time.minute))
 
         data = {
+            'company_id': publication.id,
             'date': date,
             'time': time,
             'title': random_string(),
             'message': random_string(256),
             'image': (io.BytesIO(b"fkdlasjl"), 'test.jpg'),
             'social_networks': random_string(),
+            'category': category.name,
+            'subcategory': random_string()
         }
 
         with self.client:
