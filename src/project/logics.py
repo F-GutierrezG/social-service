@@ -1,6 +1,7 @@
 import datetime
 
 from sqlalchemy import or_
+from sqlalchemy import func
 
 from companies_service.factories import CompaniesServiceFactory
 from notifications_service.factories import NotificationsServiceFactory
@@ -61,6 +62,11 @@ class PublicationLogics:
 
         db.session.add(publication)
         db.session.commit()
+
+        self.__add_subcategory(
+            company_id=mapped_data['company_id'],
+            category=mapped_data['category'],
+            subcategory=mapped_data['subcategory'])
 
         self.__notify_publication(publication, user)
 
@@ -341,6 +347,8 @@ class PublicationLogics:
         mapped_data['message'] = data['message']
         mapped_data['additional'] = data['additional']
         mapped_data['image_url'] = self.__upload_image(data['image'])
+        mapped_data['category'] = data['category']
+        mapped_data['subcategory'] = data['subcategory']
 
         return mapped_data
 
@@ -382,6 +390,27 @@ class PublicationLogics:
         return list(map(
             lambda network: PublicationSocialNetwork(
                 social_network=network), data['social_networks']))
+
+    def __add_subcategory(self, company_id, category, subcategory):
+        founded_category = db.session.query(Category).\
+            filter(Category.name == category).\
+            first()
+
+        founded_subcategory = db.session.query(Category).\
+            join(Category.subcategories).\
+            filter(Category.id == founded_category.id).\
+            filter(Subcategory.company_id == company_id).\
+            filter(func.lower(Subcategory.name) == func.lower(subcategory)).\
+            first()
+
+        if founded_subcategory is None:
+            new_subcategory = Subcategory(
+                company_id=company_id,
+                category=founded_category,
+                name=subcategory)
+
+            db.session.add(new_subcategory)
+            db.session.commit()
 
 
 class CategoryLogics:

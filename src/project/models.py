@@ -36,6 +36,8 @@ class Publication(db.Model):
     reject_reason = db.Column(db.Text, nullable=True)
     link = db.Column(db.Text, nullable=True)
     parent_id = db.Column(db.Integer, nullable=True)
+    category = db.Column(db.Text, nullable=False)
+    subcategory = db.Column(db.Text, nullable=False)
 
     social_networks = db.relationship(
         "PublicationSocialNetwork", backref='publication')

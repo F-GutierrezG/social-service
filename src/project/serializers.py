@@ -20,7 +20,9 @@ class PublicationSerializer:
             'social_networks': PublicationSerializer.__social_networks(
                 publication),
             'link': publication.link,
-            'tags': PublicationSerializer.__tags(publication)
+            'tags': PublicationSerializer.__tags(publication),
+            'category': publication.category,
+            'subcategory': publication.subcategory
         }
 
     @staticmethod
