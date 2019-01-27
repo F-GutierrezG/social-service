@@ -100,15 +100,19 @@ def delete(user, id):
 @authenticate
 def update(user, id):
     publication_data = {}
+    publication_data['company_id'] = request.form.get('company_id')
     publication_data['date'] = request.form.get('date')
     publication_data['time'] = request.form.get('time')
     publication_data['title'] = request.form.get('title')
     publication_data['social_networks'] = request.form.get(
         'social_networks').split(',')
+    publication_data['updated_by'] = user.id
     publication_data['message'] = request.form.get('message')
     publication_data['additional'] = request.form.get('additional')
     publication_data['image'] = request.files.get('image')
     publication_data['tags'] = request.form.get('tags')
+    publication_data['category'] = request.form.get('category')
+    publication_data['subcategory'] = request.form.get('subcategory')
 
     try:
         publication = PublicationLogics().update(id, publication_data, user)

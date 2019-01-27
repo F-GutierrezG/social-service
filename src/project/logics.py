@@ -154,6 +154,11 @@ class PublicationLogics:
         db.session.add(publication)
         db.session.commit()
 
+        self.__add_subcategory(
+            company_id=mapped_data['company_id'],
+            category=mapped_data['category'],
+            subcategory=mapped_data['subcategory'])
+
         self.__notify_publication(publication, user)
 
         return PublicationSerializer.to_dict(publication)
@@ -356,10 +361,14 @@ class PublicationLogics:
         mapped_data = {}
 
         mapped_data['title'] = data['title']
+        mapped_data['updated_by'] = data['updated_by']
+        mapped_data['company_id'] = data['company_id']
         mapped_data['datetime'] = "{} {}".format(data['date'], data['time'])
         mapped_data['message'] = data['message']
         if 'image' in data and data['image'] is not None:
             mapped_data['image_url'] = self.__upload_image(data['image'])
+        mapped_data['category'] = data['category']
+        mapped_data['subcategory'] = data['subcategory']
 
         return mapped_data
 
