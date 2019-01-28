@@ -17,6 +17,7 @@ class BaseConfig:
     COMPANIES_SERVICE_URL = os.environ.get('COMPANIES_SERVICE_URL')
     NOTIFICATIONS_SERVICE_URL = os.environ.get('NOTIFICATIONS_SERVICE_URL')
     AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME')
+    AWS_REGION = os.environ.get('AWS_REGION')
 
 
 class DevelopmentConfig(BaseConfig):

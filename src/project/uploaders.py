@@ -6,6 +6,7 @@ from flask import current_app
 
 class S3Uploader:
     def upload(self, file):
+        region = current_app.config['AWS_REGION']
         bucket_name = current_app.config['AWS_BUCKET_NAME']
         key = 'images/{}'.format(self.__generate_name(file))
 
@@ -15,8 +16,8 @@ class S3Uploader:
             Body=file,
             ContentType=file.mimetype)
 
-        return "https://s3.amazonaws.com/{}/{}".format(
-            bucket_name, key)
+        return "https://s3.{}.amazonaws.com/{}/{}".format(
+            region, bucket_name, key)
 
     def __generate_name(self, file):
         extension = file.filename.split('.')[-1]

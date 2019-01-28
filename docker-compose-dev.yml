@@ -20,6 +20,7 @@ services:
       - AWS_BUCKET_NAME=onelike-devel
       - AWS_ACCESS_KEY_ID=AKIAJKNHYPESB4G22IXQ
       - AWS_SECRET_ACCESS_KEY=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
+      - AWS_REGION=us-east-1
       - USERS_SERVICE_URL=http://users:5000/users
       - AUTH_SERVICE_URL=http://users:5000/auth
       - COMPANIES_SERVICE_URL=http://companies:5000/companies
