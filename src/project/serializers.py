@@ -22,7 +22,8 @@ class PublicationSerializer:
             'link': publication.link,
             'tags': PublicationSerializer.__tags(publication),
             'category': publication.category,
-            'subcategory': publication.subcategory
+            'subcategory': publication.subcategory,
+            'reject_reason': publication.reject_reason
         }
 
     @staticmethod
