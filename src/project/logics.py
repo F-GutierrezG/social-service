@@ -409,6 +409,9 @@ class PublicationLogics:
             filter(Category.name == category).\
             first()
 
+        if founded_category is None:
+            return None
+
         founded_subcategory = db.session.query(Category).\
             join(Category.subcategories).\
             filter(Category.id == founded_category.id).\
