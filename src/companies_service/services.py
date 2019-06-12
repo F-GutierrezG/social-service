@@ -57,6 +57,7 @@ class CompaniesServiceMock:
 
     def clear(self):
         self.company = None
+        self.brand = None
         self.companies = []
         self.users_companies = {}
         self.user = None
@@ -74,6 +75,9 @@ class CompaniesServiceMock:
 
     def set_company(self, company):
         self.company = company
+
+    def set_brand(self, brand):
+        self.brand = brand
 
     def add_company(self, company):
         self.companies.append(company)
@@ -94,6 +98,9 @@ class CompaniesServiceMock:
 
     def get_company(self, company_id):
         return Response(), self.company
+
+    def get_brand(self, brand_id):
+        return Response(), self.brand
 
     def get_company_users(self, company_id):
         users = []
