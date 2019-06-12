@@ -129,6 +129,7 @@ class TestCreatePublication(BaseTestCase):
 
         data = {
             'company_id': random.randint(0, 1000),
+            'brand_id': random.randint(0, 1000),
             'date': date,
             'time': time,
             'title': random_string(),
@@ -169,6 +170,7 @@ class TestCreatePublication(BaseTestCase):
 
         data = {
             'company_id': random.randint(0, 1000),
+            'brand_id': random.randint(0, 1000),
             'date': date,
             'time': time,
             'title': random_string(),
@@ -492,6 +494,7 @@ class TestEditPublication(BaseTestCase):
 
         data = {
             'company_id': random.randint(1, 10),
+            'brand_id': random.randint(1, 10),
             'date': date,
             'time': time,
             'title': random_string(),
@@ -580,6 +583,7 @@ class TestEditPublication(BaseTestCase):
 
         data = {
             'company_id': random.randint(1, 10),
+            'brand_id': random.randint(1, 10),
             'date': date,
             'time': time,
             'title': random_string(),
@@ -659,7 +663,8 @@ class TestEditPublication(BaseTestCase):
             '{:02d}'.format(current_time.minute))
 
         data = {
-            'company_id': publication.id,
+            'company_id': random.randint(1, 10),
+            'brand_id': random.randint(1, 10),
             'date': date,
             'time': time,
             'title': random_string(),

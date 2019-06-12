@@ -102,6 +102,7 @@ def delete(user, id):
 def update(user, id):
     publication_data = {}
     publication_data['company_id'] = request.form.get('company_id')
+    publication_data['brand_id'] = request.form.get('brand_id')
     publication_data['date'] = request.form.get('date')
     publication_data['time'] = request.form.get('time')
     publication_data['title'] = request.form.get('title')

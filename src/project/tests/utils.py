@@ -9,9 +9,11 @@ from project import db
 from project.models import Publication, Category
 
 
-def add_publication(company_id=1, status=Publication.Status.PENDING):
+def add_publication(
+        company_id=1, brand_id=1, status=Publication.Status.PENDING):
     publication = Publication(
         company_id=company_id,
+        brand_id=brand_id,
         created_by=1,
         datetime=func.now(),
         title=random_string(),
@@ -26,6 +28,9 @@ def add_publication(company_id=1, status=Publication.Status.PENDING):
     companies_service.set_company({
         'id': company_id,
         'identifier': random_string(),
+        'name': random_string()})
+    companies_service.set_brand({
+        'id': brand_id,
         'name': random_string()})
 
     return publication
@@ -46,6 +51,15 @@ def add_company():
     }
     companies_service.add_company(company)
     return company
+
+
+def add_brand():
+    companies_service = CompaniesServiceFactory.get_instance()
+    brand = {
+        'id': random.randint(0, 100000)
+    }
+    companies_service.add_company(brand)
+    return brand
 
 
 def add_category():
