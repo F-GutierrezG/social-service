@@ -6,6 +6,8 @@ class PublicationSerializer:
             'company_id': publication.company_id,
             'company_identifier': publication.company['identifier'],
             'company_name': publication.company['name'],
+            'brand_id': publication.brand_id,
+            'brand_name': publication.brand['name'],
             'date': publication.datetime.strftime('%Y-%m-%d'),
             'time': publication.datetime.strftime('%H:%M'),
             'title': publication.title,
@@ -42,6 +44,10 @@ class PublicationSerializer:
     @staticmethod
     def __tags(publication):
         return list(map(lambda tag: tag.name, publication.tags))
+
+    @staticmethod
+    def __get_brand_name(publication):
+        return publication.brand['name'] if 'name' in publication.brand else ''
 
 
 class CategorySerializer:

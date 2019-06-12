@@ -18,6 +18,7 @@ class Publication(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     company_id = db.Column(db.Integer, nullable=False)
+    brand_id = db.Column(db.Integer, nullable=False, default=-1)
     created = db.Column(db.DateTime, default=func.now(), nullable=False)
     created_by = db.Column(db.Integer, nullable=False)
 
@@ -44,6 +45,7 @@ class Publication(db.Model):
     tags = db.relationship("PublicationTag", backref='publication')
 
     _company = None
+    _brand = None
 
     @property
     def company(self):
@@ -52,6 +54,16 @@ class Publication(db.Model):
             _, self._company = service.get_company(self.company_id)
 
         return self._company
+
+    @property
+    def brand(self):
+        if self.brand_id == 0:
+            self._brand = {'id': 0, 'name': ''}
+        elif self._brand is None:
+            service = CompaniesServiceFactory.get_instance()
+            _, self._brand = service.get_brand(self.brand_id)
+
+        return self._brand
 
 
 class PublicationSocialNetwork(db.Model):

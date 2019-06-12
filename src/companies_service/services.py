@@ -15,6 +15,16 @@ class CompaniesService:
         data = json.loads(response.text)
         return response, data
 
+    def get_brand(self, brand_id):
+        url = '{}/brands/{}'.format(
+            current_app.config['COMPANIES_SERVICE_URL'],
+            brand_id)
+        bearer = request.headers.get('Authorization')
+        headers = {'Authorization': bearer}
+        response = requests.get(url, headers=headers)
+        data = json.loads(response.text)
+        return response, data
+
     def get_user_companies(self):
         url = '{0}'.format(
             current_app.config['COMPANIES_SERVICE_URL'])

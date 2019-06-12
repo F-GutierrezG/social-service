@@ -234,6 +234,7 @@ class PublicationLogics:
     def __create_next_publication(self, publication, next_datetime, user):
         new_publication = Publication(
             company_id=publication.company_id,
+            brand_id=publication.brand_id,
             datetime=next_datetime,
             title=publication.title,
             message=publication.message,
@@ -265,6 +266,7 @@ class PublicationLogics:
     def __clone_repetition(self, publication, data, repetition, user):
         new_publication = Publication(
             company_id=publication.company_id,
+            brand_id=publication.brand_id,
             datetime=self.__get_clone_date(
                 publication.datetime, data, int(repetition)),
             title=publication.title,
@@ -352,6 +354,7 @@ class PublicationLogics:
         mapped_data['title'] = data['title']
         mapped_data['created_by'] = data['created_by']
         mapped_data['company_id'] = data['company_id']
+        mapped_data['brand_id'] = data['brand_id']
         mapped_data['datetime'] = "{} {}".format(data['date'], data['time'])
         mapped_data['message'] = data['message']
         mapped_data['additional'] = data['additional']
@@ -367,6 +370,7 @@ class PublicationLogics:
         mapped_data['title'] = data['title']
         mapped_data['updated_by'] = data['updated_by']
         mapped_data['company_id'] = data['company_id']
+        mapped_data['brand_id'] = data['brand_id']
         mapped_data['datetime'] = "{} {}".format(data['date'], data['time'])
         mapped_data['message'] = data['message']
         if 'image' in data and data['image'] is not None:
@@ -377,6 +381,8 @@ class PublicationLogics:
         return mapped_data
 
     def __upload_image(self, image):
+        if not image:
+            return
         return S3Uploader().upload(image)
 
     def __remove_publication_social_networks(self, publication):
