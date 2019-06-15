@@ -1,7 +1,8 @@
-image: alpine
+image: docker
+services:
+  - docker:dind
 
 variables:
-  COMMIT: ${CI_COMMIT_SHA}
   REGISTRY_REPO: registry.gitlab.com/gusisoft/onelike/social-service
   SOCIAL: social
   SOCIAL_DB: social-db
@@ -17,7 +18,8 @@ Testing:
   only:
     - devel
   before_script:
-    - sudo git clean -ffdx
+    - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
+    - pip install docker-compose
   script:
     - docker-compose -f docker-compose-dev.yml up -d --build
     - docker-compose -f docker-compose-dev.yml run social python manage.py recreate-db
@@ -25,10 +27,6 @@ Testing:
     - docker-compose -f docker-compose-dev.yml run social python manage.py cov
   after_script:
     - docker-compose -f docker-compose-dev.yml down
-    - docker image rm -f social-service_social
-    - docker image rm -f social-service_social-db
-    - docker image rm -f social-service_social-swagger
-    - sudo git clean -ffdx
 
 Social Service:
   stage: registry
@@ -36,38 +34,36 @@ Social Service:
     - stage
     - master
   before_script:
-    - sudo git clean -ffdx
+    - apk add --no-cache git
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
     - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/social-service.git"
     - export SOCIAL_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}"
   script:
-    - docker build $SOCIAL_REPO -t $SOCIAL:$COMMIT -f Dockerfile-${CI_COMMIT_REF_NAME}
-    - docker tag $SOCIAL:$COMMIT $REGISTRY_REPO/$SOCIAL:$TAG
+    - docker build $SOCIAL_REPO -t $SOCIAL:$CI_COMMIT_SHA -f Dockerfile-${CI_COMMIT_REF_NAME}
+    - docker tag $SOCIAL:$CI_COMMIT_SHA $REGISTRY_REPO/$SOCIAL:$TAG
     - docker push $REGISTRY_REPO/$SOCIAL:$TAG
   after_script:
     - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/social-service/social -q)
-    - sudo git clean -ffdx
 
 Social DB:
   stage: registry
   only:
     - stage
   before_script:
-    - sudo git clean -ffdx
+    - apk add --no-cache git
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
     - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/social-service.git"
     - export SOCIAL_DB_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:db"
   script:
-    - docker build $SOCIAL_DB_REPO -t $SOCIAL_DB:$COMMIT -f Dockerfile
-    - docker tag $SOCIAL_DB:$COMMIT $REGISTRY_REPO/$SOCIAL_DB:$TAG
+    - docker build $SOCIAL_DB_REPO -t $SOCIAL_DB:$CI_COMMIT_SHA -f Dockerfile
+    - docker tag $SOCIAL_DB:$CI_COMMIT_SHA $REGISTRY_REPO/$SOCIAL_DB:$TAG
     - docker push $REGISTRY_REPO/$SOCIAL_DB:$TAG
   after_script:
     - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/social-service/social-db -q)
-    - sudo git clean -ffdx
 
 Social Swagger:
   stage: registry
@@ -75,25 +71,25 @@ Social Swagger:
     - stage
     - master
   before_script:
-    - sudo git clean -ffdx
+    - apk add --no-cache git
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - docker login -u gitlab-ci-token -p $DOCKER_TOKEN registry.gitlab.com
     - export MAIN_REPO="https://${GITLAB_USER}:${GITLAB_PASSWORD}@gitlab.com/gusisoft/OneLike/social-service.git"
     - export SWAGGER_REPO="${MAIN_REPO}#${CI_COMMIT_REF_NAME}:swagger"
   script:
-    - docker build $SWAGGER_REPO -t $SWAGGER:$COMMIT -f Dockerfile
-    - docker tag $SWAGGER:$COMMIT $REGISTRY_REPO/$SWAGGER:$TAG
+    - docker build $SWAGGER_REPO -t $SWAGGER:$CI_COMMIT_SHA -f Dockerfile
+    - docker tag $SWAGGER:$CI_COMMIT_SHA $REGISTRY_REPO/$SWAGGER:$TAG
     - docker push $REGISTRY_REPO/$SWAGGER:$TAG
   after_script:
     - docker image rm -f $(docker images registry.gitlab.com/gusisoft/onelike/social-service/social-swagger -q)
-    - sudo git clean -ffdx
 
 Deploy Stage:
   stage: deploy
   only:
     - stage
   before_script:
+    - apk add --no-cache openssh-client git
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - rm -rf ~/.ssh
@@ -102,13 +98,14 @@ Deploy Stage:
     - chmod 600 ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - bash ./${CI_COMMIT_REF_NAME}-deploy.sh
+    - sh ./${CI_COMMIT_REF_NAME}-deploy.sh
 
 Deploy Production:
   stage: deploy
   only:
     - master
   before_script:
+    - apk add --no-cache openssh-client git
     - export COMMIT_TIME=$(git show -s --format=%ct $CI_COMMIT_SHA)
     - export TAG=${CI_COMMIT_REF_NAME}_$COMMIT_TIME
     - rm -rf ~/.ssh
@@ -117,4 +114,4 @@ Deploy Production:
     - chmod 600 ~/.ssh/id_rsa
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
   script:
-    - bash ./${CI_COMMIT_REF_NAME}-deploy.sh
+    - sh ./${CI_COMMIT_REF_NAME}-deploy.sh
